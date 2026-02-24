@@ -1,0 +1,2997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyMind ES v1.0 — Tu Camino Financiero</title>
+<meta name="version" content="1.0">
+<!-- © 2026 Burle Warren. All Rights Reserved. -->
+<!-- MoneyMind ES v1.0 -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf8f2;
+    --warm-white: #fff9f4;
+    --sage: #7fb083;
+    --sage-light: #a8c5ab;
+    --sage-dark: #5a8a5e;
+    --peach: #f4a26a;
+    --peach-light: #f9c9a5;
+    --peach-dark: #e07d3a;
+    --sky: #7ab8d4;
+    --sky-light: #b3d8e8;
+    --lavender: #b09ec9;
+    --lavender-light: #d4caeb;
+    --coral: #e8796a;
+    --gold: #e8c547;
+    --text-dark: #2d2a26;
+    --text-mid: #5a5650;
+    --text-light: #8a847e;
+    --card-shadow: 0 4px 24px rgba(45,42,38,0.08);
+    --card-shadow-hover: 0 8px 40px rgba(45,42,38,0.14);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { overscroll-behavior: none; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+
+  /* ===== SPLASH SCREEN ===== */
+  #splash {
+    position: fixed; inset: 0;
+    background: linear-gradient(145deg, #fdf0e4 0%, #e8f4ea 50%, #e4eef8 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  #splash.hidden { opacity: 0; pointer-events: none; transform: scale(1.04); }
+
+  .splash-logo {
+    width: 100px; height: 100px;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--peach) 100%);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    box-shadow: 0 12px 40px rgba(127,176,131,0.35);
+    margin-bottom: 24px;
+    animation: logoFloat 2s ease-in-out infinite alternate;
+  }
+  @keyframes logoFloat {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+  }
+
+  .splash-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 42px; font-weight: 900;
+    color: var(--text-dark);
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .splash-sub {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--text-mid);
+    font-size: 17px;
+    margin-bottom: 48px;
+  }
+  .name-input {
+    width: 100%;
+    max-width: 280px;
+    padding: 14px 20px;
+    border-radius: 50px;
+    border: 2px solid var(--sage-light);
+    background: white;
+    color: var(--text-dark);
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(90,138,94,0.15);
+    box-sizing: border-box;
+  }
+  .name-input::placeholder { color: var(--text-light); }
+  .name-input:focus { border-color: var(--sage); box-shadow: 0 2px 16px rgba(90,138,94,0.25); }
+  .splash-btn {
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    color: white;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px; font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(90,138,94,0.35);
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+  }
+  .splash-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(90,138,94,0.45); }
+  .splash-btn:active { transform: translateY(0); }
+
+  /* ===== MAIN APP ===== */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  #app.visible { display: flex; }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    background: var(--warm-white);
+    border-bottom: 2px solid rgba(127,176,131,0.15);
+    padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(45,42,38,0.06);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .nav-logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--peach) 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .nav-logo-text { font-size: 22px; font-weight: 900; color: var(--text-dark); letter-spacing: -0.5px; }
+  .nav-xp {
+    display: flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #fff4e8, #fff);
+    border: 2px solid var(--peach-light);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-size: 14px; font-weight: 700; color: var(--peach-dark);
+  }
+  .nav-version {
+    font-size: 10px; font-weight: 700; color: var(--text-light);
+    letter-spacing: 0.5px; margin-left: 4px;
+  }
+  .app-footer {
+    text-align: center;
+    padding: 12px 16px 6px;
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .save-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text-dark); color: white;
+    padding: 8px 18px; border-radius: 50px;
+    font-size: 13px; font-weight: 700;
+    opacity: 0; transition: all 0.3s ease;
+    z-index: 200; white-space: nowrap;
+    pointer-events: none;
+  }
+  .save-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .reset-btn {
+    background: none; border: 2px solid #e8e4df;
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--text-light); cursor: pointer;
+    transition: all 0.2s; width: 100%; margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: var(--coral); color: var(--coral); }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--warm-white);
+    border-top: 2px solid rgba(127,176,131,0.15);
+    display: flex;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(45,42,38,0.08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 10px 4px;
+    cursor: pointer; border: none; background: none;
+    transition: all 0.2s;
+    color: var(--text-light);
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px; font-weight: 700;
+    gap: 4px;
+  }
+  .nav-item .nav-icon { font-size: 22px; transition: transform 0.2s; }
+  .nav-item.active { color: var(--sage-dark); }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+  .nav-item:hover { color: var(--sage); }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content {
+    flex: 1;
+    padding: 20px 16px 100px;
+    max-width: 680px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== HOME SCREEN ===== */
+  .greeting-card {
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    border-radius: var(--radius);
+    padding: 24px;
+    color: white;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .greeting-card::before {
+    content: '💰';
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    font-size: 64px; opacity: 0.2;
+  }
+  .greeting-name { font-size: 13px; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .greeting-msg { font-size: 22px; font-weight: 800; line-height: 1.3; margin-bottom: 16px; }
+  .progress-label { font-size: 12px; font-weight: 700; opacity: 0.85; margin-bottom: 8px; }
+  .progress-bar-bg {
+    background: rgba(255,255,255,0.25);
+    border-radius: 50px; height: 10px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: white;
+    border-radius: 50px; height: 100%;
+    transition: width 1s ease;
+  }
+  .progress-info { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.85; margin-top: 6px; font-weight: 700; }
+
+  .section-title {
+    font-size: 19px; font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 14px; margin-top: 24px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ===== MODULE CARDS ===== */
+  .module-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .module-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
+  .module-card.locked { opacity: 0.55; cursor: not-allowed; }
+  .module-card.locked:hover { transform: none; box-shadow: var(--card-shadow); }
+  .module-card.completed { border-color: var(--sage-light); background: linear-gradient(135deg, #f7fcf7, white); }
+  .module-card.active-module { border-color: var(--peach); }
+
+  .module-icon {
+    width: 54px; height: 54px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .icon-sage { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+  .icon-peach { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+  .icon-sky { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+  .icon-lavender { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+  .icon-coral { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+  .icon-gold { background: linear-gradient(135deg, #fffde7, #fff9c4); }
+
+  .module-info { flex: 1; min-width: 0; }
+  .module-layer { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-mid); margin-bottom: 3px; }
+  .module-position {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-left: 2px;
+  }
+  .locked .module-position {
+    opacity: 0.5;
+  }
+  .module-title { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+  .module-desc { font-size: 13px; color: var(--text-mid); line-height: 1.4; }
+  .module-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .module-time { font-size: 12px; color: var(--text-light); font-weight: 600; }
+  .module-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 50px;
+  }
+  .badge-required { background: #fff0e6; color: var(--peach-dark); }
+  .badge-unlocked { background: #e8f5e9; color: var(--sage-dark); }
+  .badge-locked { background: #f0f0f0; color: var(--text-light); }
+  .badge-done { background: #e8f5e9; color: var(--sage-dark); }
+
+  .module-status { font-size: 22px; flex-shrink: 0; }
+
+  /* ===== LESSON SCREEN ===== */
+  .lesson-header {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    margin-top: 0;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .lesson-back {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--sage-dark); font-weight: 700; font-size: 14px;
+    cursor: pointer; margin-bottom: 16px;
+    background: none; border: none; font-family: 'Nunito', sans-serif;
+    padding: 0;
+  }
+  .lesson-back:hover { color: var(--sage); }
+  .lesson-layer-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 50px;
+    margin-bottom: 10px;
+  }
+  .lesson-title { font-size: 24px; font-weight: 900; color: var(--text-dark); line-height: 1.2; margin-bottom: 8px; }
+  .lesson-subtitle { font-family: 'Lora', serif; font-style: italic; color: var(--text-mid); font-size: 15px; }
+
+  .lesson-progress-bar {
+    background: #f0f0f0; border-radius: 50px; height: 6px;
+    margin-top: 16px; overflow: hidden;
+  }
+  .lesson-progress-fill {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--sage), var(--sage-dark));
+    transition: width 0.5s ease;
+  }
+
+  .lesson-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+    line-height: 1.7;
+  }
+  .lesson-card h3 {
+    font-size: 18px; font-weight: 800;
+    color: var(--text-dark); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lesson-card p { color: var(--text-mid); font-size: 15px; margin-bottom: 12px; }
+  .lesson-card p:last-child { margin-bottom: 0; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-left: 4px solid var(--sage);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .highlight-box.peach {
+    background: linear-gradient(135deg, #fff3e0, #fff8e8);
+    border-left-color: var(--peach);
+  }
+  .highlight-box.coral {
+    background: linear-gradient(135deg, #fce4ec, #ffeef3);
+    border-left-color: var(--coral);
+  }
+  .highlight-box p { margin: 0; font-weight: 600; font-size: 14px; color: var(--text-dark); }
+
+  .quiz-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .quiz-q { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 18px; line-height: 1.4; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    background: #f8f6f3;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 600;
+    color: var(--text-dark);
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--sage-light); background: #f0f7f0; }
+  .quiz-option.correct { border-color: var(--sage); background: #e8f5e9; color: var(--sage-dark); }
+  .quiz-option.wrong { border-color: var(--coral); background: #fce4ec; color: #c0392b; }
+  .quiz-feedback {
+    margin-top: 14px; padding: 14px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #e8f5e9; color: var(--sage-dark); }
+  .quiz-feedback.wrong { background: #fce4ec; color: #c0392b; }
+
+  /* ===== CALCULATOR ===== */
+  .calc-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .calc-title { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .calc-desc { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; }
+  .calc-row { margin-bottom: 16px; }
+  .calc-label { font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+  .calc-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e8e4df;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--text-dark);
+    background: #f8f6f3;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .calc-input:focus { border-color: var(--sage); background: white; }
+  .calc-result {
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    color: white;
+    margin-top: 16px;
+    display: none;
+  }
+  .calc-result.show { display: block; }
+  .calc-result-label { font-size: 12px; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .calc-result-value { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+  .calc-result-note { font-size: 13px; opacity: 0.85; line-height: 1.5; }
+  .calc-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--peach) 0%, var(--peach-dark) 100%);
+    color: white; border: none;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+  }
+  .calc-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(224,125,58,0.35); }
+
+  /* ===== SCENARIO CARD ===== */
+  .scenario-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .scenario-story {
+    background: linear-gradient(135deg, #f8f4ff, #f0ebff);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 20px;
+    font-family: 'Lora', serif;
+    font-size: 15px; line-height: 1.7;
+    color: var(--text-dark);
+    border-left: 4px solid var(--lavender);
+  }
+  .scenario-q { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 14px; }
+  .scenario-options { display: flex; flex-direction: column; gap: 10px; }
+  .scenario-option {
+    background: #f8f6f3;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: var(--text-dark); text-align: left;
+    transition: all 0.2s;
+  }
+  .scenario-option:hover { border-color: var(--lavender-light); background: #f3efff; }
+  .scenario-option.selected-best { border-color: var(--sage); background: #e8f5e9; }
+  .scenario-option.selected-ok { border-color: var(--gold); background: #fffde7; }
+  .scenario-option.selected-bad { border-color: var(--coral); background: #fce4ec; }
+  .scenario-result { margin-top: 16px; padding: 16px; border-radius: var(--radius-sm); display: none; font-size: 14px; line-height: 1.6; }
+  .scenario-result.show { display: block; }
+
+  /* ===== CHECKIN ===== */
+  .checkin-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .checkin-q { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; line-height: 1.4; }
+  .checkin-sub { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+  .checkin-btns { display: flex; gap: 12px; }
+  .checkin-btn {
+    flex: 1; padding: 16px;
+    border: 2px solid #e8e4df;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+    background: #f8f6f3; color: var(--text-mid);
+  }
+  .checkin-btn:hover { border-color: var(--sage-light); }
+  .checkin-btn.yes:hover, .checkin-btn.yes.selected { border-color: var(--sage); background: #e8f5e9; color: var(--sage-dark); }
+  .checkin-btn.no:hover, .checkin-btn.no.selected { border-color: var(--coral); background: #fce4ec; color: #c0392b; }
+  .checkin-response { margin-top: 14px; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; display: none; font-weight: 600; line-height: 1.5; }
+  .checkin-response.show { display: block; }
+  /* l5m2 quarterly review button style */
+  .checkin-options { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .checkin-opt {
+    width: 100%; padding: 14px 18px; text-align: left;
+    border: 2px solid #e8e4df; border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; background: #f8f6f3; color: var(--text-mid);
+  }
+  .checkin-opt:hover { border-color: var(--sage-light); }
+  .checkin-opt.yes:hover, .checkin-opt.yes.selected { border-color: var(--sage); background: #e8f5e9; color: var(--sage-dark); }
+  .checkin-opt.no:hover, .checkin-opt.no.selected { border-color: var(--coral); background: #fce4ec; color: #c0392b; }
+  .checkin-feedback { margin-top: 14px; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; display: none; font-weight: 600; line-height: 1.5; }
+  .checkin-feedback.show { display: block; }
+
+  /* ===== CONTINUE BUTTON ===== */
+  /* Lesson screen */
+  #screen-lesson { animation: none; }
+  #lesson-content { padding-bottom: 24px; }
+  #lesson-footer .continue-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    color: white; border: none;
+    padding: 18px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px; font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+    box-shadow: 0 4px 20px rgba(90,138,94,0.3);
+    display: block;
+  }
+  .continue-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    color: white; border: none;
+    padding: 18px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px; font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(90,138,94,0.3);
+  }
+  .continue-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(90,138,94,0.4); }
+  .complete-btn {
+    background: linear-gradient(135deg, var(--peach) 0%, var(--peach-dark) 100%);
+    box-shadow: 0 4px 20px rgba(224,125,58,0.3);
+  }
+  .complete-btn:hover { box-shadow: 0 8px 28px rgba(224,125,58,0.4); }
+
+  /* ===== PROGRESS SCREEN ===== */
+  .progress-screen-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-box {
+    background: #f8f6f3;
+    border-radius: var(--radius-sm);
+    padding: 16px; text-align: center;
+  }
+  .stat-val { font-size: 32px; font-weight: 900; color: var(--text-dark); }
+  .stat-lbl { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .layer-progress { margin-bottom: 20px; }
+  .layer-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .layer-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .layer-name { font-size: 14px; font-weight: 700; color: var(--text-dark); flex: 1; }
+  .layer-bar-bg { flex: 2; background: #f0f0f0; border-radius: 50px; height: 8px; overflow: hidden; }
+  .layer-bar-fill { height: 100%; border-radius: 50px; transition: width 1s ease; }
+  .layer-pct { font-size: 13px; font-weight: 700; color: var(--text-mid); min-width: 32px; text-align: right; }
+
+  .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .badge-item {
+    background: #f8f6f3;
+    border-radius: var(--radius-sm);
+    padding: 16px 12px; text-align: center;
+    transition: all 0.2s;
+  }
+  .badge-item.earned { background: linear-gradient(135deg, #fff9e6, #fff3cc); }
+  .badge-item.earned:hover { transform: translateY(-2px); }
+  .badge-emoji { font-size: 30px; margin-bottom: 6px; }
+  .badge-name { font-size: 12px; font-weight: 700; color: var(--text-mid); }
+  .badge-item.earned .badge-name { color: var(--text-dark); }
+  .badge-locked-overlay { filter: grayscale(1); opacity: 0.4; }
+
+  /* ===== TIPS SCREEN ===== */
+  .tip-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+    border-left: 5px solid var(--sage);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tip-card:hover { transform: translateX(4px); }
+  .tip-card.peach { border-left-color: var(--peach); }
+  .tip-card.sky { border-left-color: var(--sky); }
+  .tip-card.lavender { border-left-color: var(--lavender); }
+  .tip-card.coral { border-left-color: var(--coral); }
+  .tip-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 6px; }
+  .tip-title { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; }
+  .tip-preview { font-size: 14px; color: var(--text-mid); line-height: 1.5; }
+  .tip-body { font-size: 14px; color: var(--text-mid); line-height: 1.7; display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0ede8; }
+  .tip-body.open { display: block; }
+
+  /* ===== COMPLETION MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(45,42,38,0.5);
+    z-index: 500; display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px 24px; text-align: center;
+    max-width: 340px; width: 100%;
+    animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes modalPop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-emoji { font-size: 64px; margin-bottom: 16px; display: block; }
+  .modal-title { font-size: 24px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+  .modal-sub { font-size: 15px; color: var(--text-mid); margin-bottom: 8px; font-family: 'Lora', serif; font-style: italic; }
+  .modal-xp { font-size: 28px; font-weight: 900; color: var(--peach-dark); margin-bottom: 24px; }
+  .modal-btn {
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    color: white; border: none;
+    padding: 16px 40px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .modal-btn:hover { transform: translateY(-2px); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (min-width: 480px) {
+    .main-content { padding: 24px 24px 100px; }
+    .stat-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (min-width: 680px) {
+    .topnav { padding: 0 32px; }
+    .main-content { padding: 32px 32px 100px; }
+  }
+  /* Budget Calculator */
+  .calc-section { display: flex; flex-direction: column; gap: 0; }
+  .calc-group { margin-bottom: 16px; }
+  .calc-group-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin-bottom: 8px; padding: 4px 0; border-bottom: 1px solid var(--sage-light); }
+  .calc-field-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .calc-field-row label { font-size: 13px; color: var(--text-mid); font-weight: 600; flex: 1; }
+  .calc-field-row input { width: 110px; flex-shrink: 0; padding: 8px 10px; border: 1.5px solid #ddd; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-dark); background: white; text-align: right; }
+  .calc-field-row input:focus { outline: none; border-color: var(--sage); }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">🧠</div>
+  <div class="splash-title">MoneyMind</div>
+  <div class="splash-sub">Tu camino hacia las finanzas personales empieza aquí</div>
+  <button class="splash-btn" onclick="startApp()">Comenzar →</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="nav-logo" onclick="showScreen('home')">
+      <div class="nav-logo-icon">🧠</div>
+      <span class="nav-logo-text">MoneyMind</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="nav-version">v1.0</span>
+      <div class="nav-xp">⭐ <span id="xp-display">0</span> XP</div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- HOME SCREEN -->
+    <div id="screen-home" class="screen active">
+      <div class="greeting-card">
+        <div class="greeting-name" id="greeting-name">Bienvenido</div>
+        <div class="greeting-msg" id="greeting-msg">Ready to level up your money skills?</div>
+        <div class="progress-label">Progreso General</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="overall-progress" style="width: 0%"></div>
+        </div>
+        <div class="progress-info">
+          <span id="modules-done">0 modules done</span>
+          <span id="modules-total"></span>
+        </div>
+      </div>
+
+      <div class="section-title">🔒 Required First</div>
+      <div id="required-modules"></div>
+
+      <div class="section-title">🚀 All Modules</div>
+      <div id="all-modules"></div>
+    </div>
+
+    <!-- LESSON SCREEN -->
+    <div id="screen-lesson" class="screen">
+      <div id="lesson-content"></div>
+      <div id="lesson-footer"></div>
+    </div>
+
+    <!-- PROGRESS SCREEN -->
+    <div id="screen-progress" class="screen">
+      <div class="section-title">📊 Tu Progreso</div>
+      <div class="progress-screen-card">
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-val" id="stat-xp">0</div>
+            <div class="stat-lbl">XP Total</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-done">0</div>
+            <div class="stat-lbl">Completados</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-streak">0🔥</div>
+            <div class="stat-lbl">Racha</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-pct">0%</div>
+            <div class="stat-lbl">Progreso</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-screen-card">
+        <div class="section-title" style="margin-top:0">Progreso por Capa</div>
+        <div class="layer-progress">
+          <div class="layer-row">
+            <div class="layer-dot" style="background:var(--sage)"></div>
+            <div class="layer-name">Layer 1: Foundation</div>
+            <div class="layer-bar-bg"><div class="layer-bar-fill" id="l1-bar" style="width:0%;background:var(--sage)"></div></div>
+            <div class="layer-pct" id="l1-pct">0%</div>
+          </div>
+          <div class="layer-row">
+            <div class="layer-dot" style="background:var(--peach)"></div>
+            <div class="layer-name">Layer 2: Tools</div>
+            <div class="layer-bar-bg"><div class="layer-bar-fill" id="l2-bar" style="width:0%;background:var(--peach)"></div></div>
+            <div class="layer-pct" id="l2-pct">0%</div>
+          </div>
+          <div class="layer-row">
+            <div class="layer-dot" style="background:var(--sky)"></div>
+            <div class="layer-name">Layer 3: Deep Concepts</div>
+            <div class="layer-bar-bg"><div class="layer-bar-fill" id="l3-bar" style="width:0%;background:var(--sky)"></div></div>
+            <div class="layer-pct" id="l3-pct">0%</div>
+          </div>
+          <div class="layer-row">
+            <div class="layer-dot" style="background:var(--lavender)"></div>
+            <div class="layer-name">Layer 4: Scenarios</div>
+            <div class="layer-bar-bg"><div class="layer-bar-fill" id="l4-bar" style="width:0%;background:var(--lavender)"></div></div>
+            <div class="layer-pct" id="l4-pct">0%</div>
+          </div>
+          <div class="layer-row">
+            <div class="layer-dot" style="background:var(--coral)"></div>
+            <div class="layer-name">Layer 5: Reflection</div>
+            <div class="layer-bar-bg"><div class="layer-bar-fill" id="l5-bar" style="width:0%;background:var(--coral)"></div></div>
+            <div class="layer-pct" id="l5-pct">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-screen-card">
+        <div class="section-title" style="margin-top:0">🏅 Badges</div>
+        <div class="badge-grid" id="badge-grid"></div>
+      </div>
+
+      <div class="progress-screen-card">
+        <div class="section-title" style="margin-top:0">⚙️ Settings</div>
+        <p style="font-size:14px;color:var(--text-mid);margin-bottom:12px">Reset all progress and start fresh. This cannot be undone.</p>
+        <button onclick="changeName()" style="background:none;border:1px solid var(--sage);color:var(--sage-dark);padding:8px 16px;border-radius:20px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px">✏️ Cambiar Nombre</button><button class="reset-btn" onclick="confirmReset()">🗑️ Reiniciar Progreso</button>
+      </div>
+
+      <div class="app-footer">© 2026 Burle Warren. All Rights Reserved. · MoneyMind ES v1.0</div>
+    </div>
+
+    <!-- TIPS SCREEN -->
+    <div id="screen-tips" class="screen">
+      <div class="section-title">💡 Consejos Rápidos</div>
+      <div id="tips-list"></div>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="showScreen('home')" id="nav-home">
+      <span class="nav-icon">🏠</span>Inicio
+    </button>
+    <button class="nav-item" onclick="showScreen('progress')" id="nav-progress">
+      <span class="nav-icon">📊</span>Progreso
+    </button>
+    <button class="nav-item" onclick="showScreen('tips')" id="nav-tips">
+      <span class="nav-icon">💡</span>Consejos
+    </button>
+  </nav>
+<!-- Save Toast -->
+<div class="save-toast" id="save-toast">✓ Progreso guardado</div>
+
+</div><!-- /app -->
+
+<!-- Completion Modal -->
+<div class="modal-overlay" id="completion-modal">
+  <div class="modal-box">
+    <span class="modal-emoji" id="modal-emoji">🎉</span>
+    <div class="modal-title" id="modal-title">Module Complete!</div>
+    <div class="modal-sub" id="modal-sub">Great work keeping at it.</div>
+    <div class="modal-xp" id="modal-xp">+50 XP</div>
+    <button class="modal-btn" onclick="closeModal()">Keep Going →</button>
+  </div>
+</div>
+
+<script>
+// ===== LOCALSTORAGE KEY =====
+const STORAGE_KEY = 'moneymind_es_v1';
+
+// ===== APP STATE =====
+const state = {
+  xp: 0,
+  streak: 1,
+  lastVisit: null,
+  completedModules: new Set(),
+  currentModule: null,
+  currentStep: 0,
+  userName: '',
+};
+
+// ===== PERSISTENCE =====
+function saveState() {
+  try {
+    const data = {
+      xp: state.xp,
+      streak: state.streak,
+      lastVisit: new Date().toDateString(),
+      completedModules: [...state.completedModules],
+      userName: state.userName,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showToast('✓ Progreso guardado');
+  } catch(e) { /* storage unavailable */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    state.xp = data.xp || 0;
+    state.completedModules = new Set(data.completedModules || []);
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (data.lastVisit === today) {
+      state.streak = data.streak || 1;
+    } else if (data.lastVisit === yesterday) {
+      state.streak = (data.streak || 1) + 1;
+    } else if (data.lastVisit) {
+      state.streak = 1;
+    } else {
+      state.streak = 1;
+    }
+    state.lastVisit = data.lastVisit;
+    state.userName = data.userName || '';
+  } catch(e) { /* storage unavailable */ }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('save-toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function changeName() {
+  const current = state.userName || '';
+  const name = prompt(`¿Cómo te llamamos?`, current);
+  if (name === null) return; // cancelled
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  state.userName = trimmed;
+  saveState();
+  renderHome();
+}
+
+function confirmReset() {
+  if (confirm('¿Reiniciar todo el progreso? Esta acción no se puede deshacer.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    state.xp = 0;
+    state.streak = 1;
+    state.completedModules = new Set();
+    state.currentModule = null;
+    state.currentStep = 0;
+    document.getElementById('xp-display').textContent = '0';
+    updateProgress();
+    renderHome();
+    showToast('\u2713 Progreso reiniciado');
+  }
+}
+
+// ===== MODULE DATA =====
+const modules = [
+  // LAYER 1: FOUNDATION (required, sequential)
+  {
+    id: 'l1m1', layer: 1, layerName: 'Fundamentos', required: true,
+    icon: '💸', iconClass: 'icon-sage',
+    title: 'Más gasto que ingreso',
+    desc: 'Por qué este hábito importa más que cualquier otra cosa.',
+    time: '5 min', xp: 50,
+    unlockAfter: null,
+    steps: ['intro','content1','quiz1','content2','content3','quiz2','realtalk','complete']
+  },
+  {
+    id: 'l1m2', layer: 1, layerName: 'Fundamentos', required: true,
+    icon: '📊', iconClass: 'icon-sage',
+    title: 'Presupuestar con ingreso variable',
+    desc: 'Cómo planear cuando tu ingreso cambia semana a semana.',
+    time: '7 min', xp: 60,
+    unlockAfter: 'l1m1',
+    steps: ['intro','content1','content2','quiz1','content3','quiz2','realtalk','complete']
+  },
+  {
+    id: 'l1m3', layer: 1, layerName: 'Fundamentos', required: true,
+    icon: '🔁', iconClass: 'icon-peach',
+    title: 'El presupuesto mensual honesto',
+    desc: 'Construye un presupuesto real con tus números reales.',
+    time: '8 min', xp: 65,
+    unlockAfter: 'l1m2',
+    steps: ['intro','content1','quiz1','content2','content3','quiz2','realtalk','complete']
+  },
+  {
+    id: 'l1m4', layer: 1, layerName: 'Fundamentos', required: false,
+    icon: '💳', iconClass: 'icon-coral',
+    title: 'Los cargos automáticos invisibles',
+    desc: 'Todo lo que sale de tu cuenta antes de que lo veas.',
+    time: '6 min', xp: 55,
+    unlockAfter: 'l1m3',
+    steps: ['intro','content1','content2','quiz1','content3','quiz2','realtalk','complete']
+  },
+
+  // LAYER 2: TOOLS
+  {
+    id: 'l2m1', layer: 2, layerName: 'Herramientas', required: false,
+    icon: '🧮', iconClass: 'icon-sky',
+    title: 'Calculadora de pago de deuda',
+    desc: 'Ve exactamente cuánto tiempo te falta para salir de deuda.',
+    time: '5 min', xp: 70,
+    unlockAfter: 'l1m4',
+    steps: ['intro','calc1','complete']
+  },
+  {
+    id: 'l2m2', layer: 2, layerName: 'Herramientas', required: false,
+    icon: '📅', iconClass: 'icon-sky',
+    title: 'Tu colchón de ingreso',
+    desc: 'Calcula cuánto necesitas en cuenta para meses lentos de reventa.',
+    time: '5 min', xp: 70,
+    unlockAfter: 'l1m4',
+    steps: ['intro','calc2','complete']
+  },
+
+  // LAYER 3: CONCEPTOS PROFUNDOS
+  {
+    id: 'l3m1', layer: 3, layerName: 'Conceptos', required: false,
+    icon: '🛡️', iconClass: 'icon-lavender',
+    title: 'Construir un fondo de emergencia',
+    desc: 'Por qué incluso $5,000 guardados lo cambia todo.',
+    time: '6 min', xp: 75,
+    unlockAfter: 'l2m1',
+    steps: ['intro','content1','quiz1','complete']
+  },
+  {
+    id: 'l3m2', layer: 3, layerName: 'Conceptos', required: false,
+    icon: '💳', iconClass: 'icon-lavender',
+    title: 'Tu tarjeta BBVA por dentro',
+    desc: 'Tasas, pagos mínimos y MSI — los números reales.',
+    time: '8 min', xp: 75,
+    unlockAfter: 'l2m1',
+    steps: ['intro','content1','content2','quiz1','realtalk','complete']
+  },
+
+  // LAYER 4: ESCENARIOS + INVERSIÓN
+  {
+    id: 'l4m1', layer: 4, layerName: 'Escenarios', required: false,
+    icon: '🎯', iconClass: 'icon-gold',
+    title: '¿Qué harías tú? Parte 1',
+    desc: 'Cuatro decisiones reales de dinero. ¿Cuál es el movimiento inteligente?',
+    time: '10 min', xp: 85,
+    unlockAfter: 'l3m1',
+    steps: ['intro','scenario1','scenario2','scenario3','scenario4','complete']
+  },
+  {
+    id: 'l4m2', layer: 4, layerName: 'Escenarios', required: false,
+    icon: '🎲', iconClass: 'icon-gold',
+    title: '¿Qué harías tú? Parte 2',
+    desc: 'Cuatro situaciones más difíciles — decisiones más profundas.',
+    time: '10 min', xp: 90,
+    unlockAfter: 'l4m1',
+    steps: ['intro','scenario5','scenario6','scenario7','scenario8','complete']
+  },
+
+  // LAYER 2 ADICIONAL
+  {
+    id: 'l2m3', layer: 2, layerName: 'Herramientas', required: false,
+    icon: '🏠', iconClass: 'icon-sky',
+    title: 'El costo real de vivir juntos',
+    desc: 'La renta es solo el número de entrada — ve el panorama completo.',
+    time: '7 min', xp: 70,
+    unlockAfter: 'l1m4',
+    steps: ['intro','content1','content2','calc3','complete']
+  },
+
+  // LAYER 3 ADICIONAL
+  {
+    id: 'l3m3', layer: 3, layerName: 'Conceptos', required: false,
+    icon: '🔒', iconClass: 'icon-lavender',
+    title: 'Gastos fijos vs variables',
+    desc: 'Qué costos están comprometidos y cuáles puedes controlar.',
+    time: '6 min', xp: 75,
+    unlockAfter: 'l3m1',
+    steps: ['intro','content1','content2','quiz1','realtalk','complete']
+  },
+  {
+    id: 'l3m4', layer: 3, layerName: 'Conceptos', required: false,
+    icon: '👨‍👩‍👦', iconClass: 'icon-lavender',
+    title: 'Apoyos a familia: planear, no improvisar',
+    desc: 'Cómo presupuestar el apoyo familiar para que no te descuadre el mes.',
+    time: '7 min', xp: 80,
+    unlockAfter: 'l3m2',
+    steps: ['intro','content1','quiz1','content2','realtalk','complete']
+  },
+  {
+    id: 'l3m5', layer: 3, layerName: 'Conceptos', required: false,
+    icon: '📋', iconClass: 'icon-lavender',
+    title: 'Obligaciones fiscales del revendedor',
+    desc: 'SAT, RESICO y lo que debes saber sobre tu ingreso de reventa.',
+    time: '8 min', xp: 80,
+    unlockAfter: 'l3m2',
+    steps: ['intro','content1','content2','quiz1','realtalk','complete']
+  },
+  {
+    id: 'l4m3', layer: 4, layerName: 'Escenarios', required: false,
+    icon: '📈', iconClass: 'icon-gold',
+    title: 'Primeros pasos para invertir en México',
+    desc: 'CETES, GBM+ y Nu — opciones reales desde Guadalajara.',
+    time: '10 min', xp: 90,
+    unlockAfter: 'l4m1',
+    steps: ['intro','content1','content2','content3','quiz1','realtalk','complete']
+  },
+
+  // LAYER 5: REFLEXIÓN
+  {
+    id: 'l5m1', layer: 5, layerName: 'Reflexión', required: false,
+    icon: '🪞', iconClass: 'icon-coral',
+    title: 'Revisión mensual',
+    desc: 'Preguntas honestas para medir el progreso real.',
+    time: '6 min', xp: 65,
+    unlockAfter: 'l3m3',
+    steps: ['intro','checkin1','checkin2','checkin3','checkin4','checkin5','checkin6','complete']
+  },
+  {
+    id: 'l5m2', layer: 5, layerName: 'Reflexión', required: false,
+    icon: '📅', iconClass: 'icon-coral',
+    title: 'Revisión trimestral',
+    desc: '¿Estás avanzando de verdad? Una mirada profunda cada tres meses.',
+    time: '8 min', xp: 70,
+    unlockAfter: 'l5m1',
+    steps: ['intro','checkin1','checkin2','checkin3','checkin4','checkin5','checkin6','checkin7','complete']
+  },
+];
+
+// ===== LESSON CONTENT =====
+const lessonContent = {
+  l1m1: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🎯 La Regla que lo Cambia Todo</h3>
+        <p>Antes de hablar de presupuestos, apps o hojas de cálculo — hay un principio que importa más que todos juntos:</p>
+        <div class="highlight-box">
+          <p>💡 Gasta menos de lo que ganas. Cada mes. Sin excepciones.</p>
+        </div>
+        <p>Obvio, ¿verdad? Pero aquí está el punto — la mayoría de las personas que batallan con el dinero no están fallando porque no saben esta regla. Están fallando porque nada les ha hecho <em>sentirla como real</em> todavía.</p>
+        <p>Este módulo es para hacer que se vuelva real.</p>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🔴 El Hoyo que Crece</h3>
+        <p>Cuando gastas más de lo que ganas, la diferencia no se queda igual — crece. Cada mes que te pasas de tu presupuesto, empiezas el siguiente mes ya en desventaja. No solo te falta dinero: estás peleando contra un hoyo que se hace más grande.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Ejemplo: Ganas $12,000/mes. Gastas $14,500/mes. Eso es una brecha de $2,500 — que se convierte en $5,000 de deuda en 2 meses, $7,500 en 3. En un año, son $30,000 en el hoyo por una sola brecha mensual.</p>
+        </div>
+        <p>La matemática es dura pero simple. La única forma de parar el hoyo es voltear la ecuación: gastar <strong>menos</strong> de lo que entra — aunque sea un poco.</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — la respuesta es $15,000. Estás gastando $2,500 más de lo que ganas cada mes ($14,500 - $12,000). En 6 meses eso suma $2,500 × 6 = $15,000 en deuda. Las brechas pequeñas se acumulan rápido.">
+        <div class="quiz-q">Si ganas $12,000/mes y gastas $14,500/mes, ¿cuánta deuda acumulas en 6 meses (empezando desde cero)?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$2,500</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$15,000</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$14,500</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$7,500</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! $2,500/mes × 6 meses = $15,000. Eso es el poder de una brecha mensual pequeña — se acumula rápido.
+        </div>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>✅ El Lado Positivo</h3>
+        <p>La misma matemática funciona al revés. Si ganas $12,000 y gastas $11,500, te sobran $500 cada mes. En 6 meses, eso son $3,000 ahorrados — que se convierten en tu colchón, tu fondo de emergencia, tu salida del ciclo.</p>
+        <div class="highlight-box">
+          <p>🌱 Incluso $500/mes ahorrados son $6,000 al año — y eso es la diferencia entre una crisis financiera y un tropiezo cuando pasa algo inesperado.</p>
+        </div>
+        <p>El objetivo no es la perfección. Es cambiar la dirección. De rojo a cero, de cero a un poco adelante. Un paso a la vez.</p>
+      </div>
+    `,
+    content3: () => `
+      <div class="lesson-card">
+        <h3>🧠 Por qué es Tan Difícil Dejar de Gastar de Más</h3>
+        <p>Saber que deberías gastar menos no te hace automáticamente hacerlo. Tu cerebro juega en contra en formas muy específicas:</p>
+        <p><strong>Sesgo del presente</strong> — tu cerebro valora $500 hoy mucho más que $500 ahorrados para el mes que viene, aunque racionalmente sean lo mismo. Las recompensas inmediatas ganan casi siempre.</p>
+        <p><strong>Gasto invisible</strong> — las compras pequeñas no se sienten reales. Un café de $60, un antojo de $80, una suscripción de $129 — ninguna se siente significativa. Pero $60 al día × 30 días = $1,800/mes solo en café.</p>
+        <div class="highlight-box peach">
+          <p>💡 No eres malo con el dinero porque te falta disciplina. Estás peleando contra instintos que evolucionaron antes de que existiera el dinero. Conocer al enemigo es el primer paso para ganarle.</p>
+        </div>
+        <p>Las herramientas de esta app están diseñadas específicamente para trabajar <em>con</em> estas tendencias, no para pelearles de frente.</p>
+      </div>
+    `,
+    quiz2: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — la respuesta es $21,900. $60 todos los días hábiles × 365 días = $21,900/año. Eso es casi dos meses de renta solo por un hábito diario.">
+        <div class="quiz-q">Compras un café de $60 todos los días entre semana. ¿Cuánto es eso al año?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$8,000</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$12,000</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$15,600</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$21,900</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! $60 × 260 días hábiles = $15,600/año. Eso es más de un mes de salario solo en café.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>La reventa hace esto más difícil. Cuando tienes una semana buena y entran $8,000, <em>se siente</em> como abundancia. Tu cerebro dice "tengo lana" — no "necesito planear esto con cuidado."</p>
+        <p>Pero el ingreso de reventa no es salario. Esa semana de $8,000 puede seguirle una de $1,200. El dinero que te hace sentir rico hoy es lo que vas a necesitar desesperadamente en dos semanas.</p>
+        <div class="highlight-box">
+          <p>🎯 Un hábito que ayuda: cuando llega un pago grande, mueve inmediatamente una cantidad fija a una categoría mental separada — "dinero de gastos fijos" — antes de sentir la abundancia. Lo que queda es lo que realmente tienes para gastar.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l1m2: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🔄 El Reto del Ingreso Variable</h3>
+        <p>El consejo de presupuesto tradicional asume una cosa: un sueldo fijo y predecible. Pero la reventa no funciona así. Una semana pueden entrar $8,000, la siguiente solo $1,800.</p>
+        <p>Esa impredecibilidad hace el presupuesto más difícil — pero también lo hace <em>más importante</em>. Sin una estrategia, gastarás de más en las buenas semanas y entrarás en pánico en las malas.</p>
+        <div class="highlight-box peach">
+          <p>🎯 Buenas noticias: existe un enfoque simple diseñado exactamente para esta situación.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>📉 Presupuesta para tu Peor Mes</h3>
+        <p>La estrategia central para el ingreso variable es esta: <strong>construye tu presupuesto alrededor de tu ingreso más bajo realista, no del mejor ni del promedio.</strong></p>
+        <p>Piensa en tu mes más lento de los últimos seis — ¿qué entraste realmente? Eso es tu base. Si puedes cubrir todo con ese número, nunca te quedarás sin dinero.</p>
+        <div class="highlight-box">
+          <p>💡 Si tu mes lento trae $9,000 y tu mes bueno trae $15,000, presupuesta para $9,000. Los $6,000 extra en los buenos meses se van a ahorro o pago de deuda — no a gasto extra.</p>
+        </div>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🏦 Tu Cuenta como Depósito, no como Cartera</h3>
+        <p>Aquí hay una técnica poderosa: trata tu cuenta BBVA como un depósito de agua, no como una cartera.</p>
+        <p>Cuando ganas más de tu base, no lo gastes — déjalo acumularse. Cuando ganas menos, toma del acumulado. Tu gasto se mantiene estable aunque tu ingreso suba y baje.</p>
+        <div class="highlight-box">
+          <p>🎯 Meta: mantener siempre al menos dos semanas de gastos fijos en tu cuenta. Ese es tu saldo mínimo seguro — trátalo como si no existiera.</p>
+        </div>
+        <p>Este solo hábito elimina la mayoría del riesgo de sobregiro para quienes tienen ingreso variable.</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — lo más inteligente es dejarlo como colchón de ingreso. La reventa sube y baja. El dinero extra de una buena semana es protección para las malas — déjalo crecer antes de gastarlo.">
+        <div class="quiz-q">Tuviste una semana excelente de reventa y ganaste $5,000 extra. ¿Cuál es el movimiento más inteligente?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Darte un gusto — ¡te lo ganaste!</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Dejarlo en la cuenta como colchón de ingreso</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Dividirlo: mitad diversión, mitad gastos</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Pagar solo los gastos del mes actual</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! El ingreso extra en semanas buenas es tu protección para las semanas malas. Déjalo crecer antes de gastarlo.
+        </div>
+      </div>
+    `,
+    content3: () => `
+      <div class="lesson-card">
+        <h3>📆 El Momento Importa Tanto como el Monto</h3>
+        <p>Con ingreso variable, <em>cuándo</em> llega el dinero es tan importante como cuánto llega. Si tu renta vence el día 1 pero tus mejores días de reventa son del 5 al 15, tienes un problema de timing — aunque el dinero eventualmente llegue.</p>
+        <p>La solución es pensar tu mes en dos partes:</p>
+        <p><strong>Dinero comprometido</strong> — todo lo que ya está destinado: renta, servicios, cargos automáticos, pagos mínimos de deuda. Esto va primero, siempre.</p>
+        <p><strong>Dinero disponible</strong> — lo que queda después de los gastos comprometidos. Esto es lo que realmente presupuestas para comida, gasolina y gasto personal.</p>
+        <div class="highlight-box">
+          <p>🗓️ Mapea qué recibos llegan en qué fechas. Luego mapea cuándo suele entrarte el ingreso. Los huecos entre esas dos cosas son donde ocurren los sobregiros.</p>
+        </div>
+      </div>
+    `,
+    quiz2: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — la respuesta es $1,300. $10,800 de ingreso menos $9,500 de gastos fijos = $1,300 verdaderamente disponibles. El resto ya está destinado antes de que lo toques.">
+        <div class="quiz-q">Tus gastos fijos mensuales suman $9,500. Tus meses lentos (nómina + reventa) traen $10,800. ¿Cuánto tienes verdaderamente disponible para gastar en un mes lento?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$10,800 — eso es lo que hay en mi cuenta</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$2,000 — ahorra el resto</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$1,300 — después de gastos fijos</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$9,500 — solo cubre los gastos</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Exacto! $10,800 menos $9,500 = $1,300 verdaderamente disponibles. Ese margen pequeño es por qué el colchón importa tanto — una semana mala lo borra por completo.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>La reventa tiene costos ocultos reales que comen tu ingreso antes de que lo veas — tiempo, gasolina si haces entregas o recoges mercancía, empaque, comisiones de plataformas como MercadoLibre o Facebook Marketplace.</p>
+        <p>Un estimado conservador: por cada $1,000 que facturas en reventa, entre $150 y $250 se van a costos de operación. Presupuestar sobre el ingreso bruto sin considerar esos costos es uno de los errores más comunes.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Esto no significa que la reventa no valga la pena — puede ser muy rentable. Pero entra con los ojos abiertos sobre tus márgenes reales.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l1m3: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>📒 Un Presupuesto es un Plan, no una Restricción</h3>
+        <p>La mayoría de las personas que han intentado hacer un presupuesto fallaron porque usaron números ideales — lo que querían gastar, no lo que realmente gastan.</p>
+        <p>Este módulo es diferente. Vamos a construir un presupuesto con tus números reales: tu ingreso real, tus gastos reales, y sin omitir nada incómodo.</p>
+        <div class="highlight-box">
+          <p>💡 Un presupuesto honesto que te muestra un déficit es más valioso que uno bonito que miente. Saber dónde estás parado es el primer paso para moverse.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>📥 Tu Ingreso Real (el Honesto)</h3>
+        <p>Para el ingreso, usa siempre tu <strong>mes lento</strong> — no el promedio, no el mejor. Si en tu peor mes reciente combinaste $9,000 de nómina y $3,500 de reventa, tu base es $12,500.</p>
+        <p>¿Por qué el mes lento? Porque si tu presupuesto funciona en los meses difíciles, los meses buenos se convierten en ahorro. Si presupuestas para los meses buenos, los meses difíciles se convierten en deuda.</p>
+        <div class="highlight-box">
+          <p>📌 Ingreso base = nómina neta + ingreso de reventa del mes lento (no del mejor, no del promedio)</p>
+        </div>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — debes usar $13,500. El mes lento es tu base de presupuesto. Si presupuestas para $18,000 y llega un mes de $13,500, ya quedaste corto desde el principio.">
+        <div class="quiz-q">Tus últimos 6 meses sumaron: $18,000 / $13,500 / $16,000 / $14,200 / $19,500 / $13,800. ¿Cuál cifra debes usar como base de tu presupuesto?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$15,833 (el promedio)</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$19,500 (el mejor)</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$13,500 (el más bajo)</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$16,000 (el del medio)</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! El mes más bajo es tu base. Todo lo que ganes por encima de eso en meses buenos se va a ahorro o deuda — no a gasto.
+        </div>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🧮 Calculadora de Presupuesto Mensual</h3>
+        <p>Llena cada campo con tus números reales. El resultado se actualiza en tiempo real.</p>
+        <div class="calc-section" id="budget-calc">
+          <div class="calc-group">
+            <div class="calc-group-label">💚 INGRESOS</div>
+            <div class="calc-field-row">
+              <label>Nómina neta (mes lento)</label>
+              <input type="number" id="bc-nomina" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Ingreso reventa (mes lento)</label>
+              <input type="number" id="bc-reventa" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+          </div>
+          <div class="calc-group">
+            <div class="calc-group-label">🔴 GASTOS FIJOS</div>
+            <div class="calc-field-row">
+              <label>Renta</label>
+              <input type="number" id="bc-renta" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Teléfono e internet</label>
+              <input type="number" id="bc-tel" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Seguros</label>
+              <input type="number" id="bc-seguros" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Pagos mínimos de deuda</label>
+              <input type="number" id="bc-deuda" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+          </div>
+          <div class="calc-group">
+            <div class="calc-group-label">🟡 GASTOS VARIABLES</div>
+            <div class="calc-field-row">
+              <label>Comida y súper</label>
+              <input type="number" id="bc-comida" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Gasolina / transporte</label>
+              <input type="number" id="bc-gas" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Salidas y entretenimiento</label>
+              <input type="number" id="bc-salidas" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row" style="border-left: 3px solid var(--sage); padding-left: 8px;">
+              <label>💚 Apoyos a familia</label>
+              <input type="number" id="bc-familia" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Suscripciones (Netflix, Spotify, etc.)</label>
+              <input type="number" id="bc-subs" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+            <div class="calc-field-row">
+              <label>Gastos varios / imprevistos</label>
+              <input type="number" id="bc-varios" placeholder="0" oninput="calcBudget()" min="0">
+            </div>
+          </div>
+          <div id="budget-result" style="display:none; margin-top:16px; border-radius:12px; padding:16px; text-align:center;">
+            <div id="budget-result-label" style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;"></div>
+            <div id="budget-result-val" style="font-size:2rem; font-weight:900; margin-bottom:6px;"></div>
+            <div id="budget-result-advice" style="font-size:13px; line-height:1.5;"></div>
+          </div>
+        </div>
+      </div>
+    `,
+    content3: () => `
+      <div class="lesson-card">
+        <h3>📊 Leer tu Resultado</h3>
+        <p>Si tu calculadora muestra <strong>superávit</strong> (te sobra dinero): divide ese sobrante entre pago extra de deuda y ahorro. Una regla simple: 60% a deuda, 40% a ahorro de emergencia, hasta que tengas $10,000 en reserva.</p>
+        <p>Si muestra <strong>déficit</strong> (gastas más de lo que entra): los gastos variables son donde hay margen. Los fijos son difíciles de mover rápido. Mira salidas, suscripciones y gastos varios primero.</p>
+        <div class="highlight-box peach">
+          <p>⚠️ Si tu déficit viene de los apoyos a familia — no los elimines. En cambio, trata ese número como gasto fijo y busca el espacio en otro lado. Mejor planear ese apoyo que improvisarlo.</p>
+        </div>
+      </div>
+    `,
+    quiz2: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — los apoyos a familia deben tratarse como gasto fijo, no eliminarse. Si los mandas regularmente, son parte de tu presupuesto base. Planearlos evita que te descuadren el mes.">
+        <div class="quiz-q">Tu presupuesto muestra un déficit de $1,200. Notas que mandas en promedio $1,800/mes a tu familia. ¿Qué haces?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Eliminar los apoyos a familia por completo</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Incluirlos como gasto fijo y buscar el recorte en suscripciones y salidas</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Ignorar el déficit — es solo un mes malo</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Poner los apoyos en la tarjeta de crédito</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! Los apoyos regulares a familia son un gasto real — presupuestarlos conscientemente es mucho mejor que improvisarlos y que te descuadren el mes.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>La mayoría de los presupuestos fallan por dos razones: números demasiado optimistas, o categorías que se omiten porque se sienten incómodas de ver escritas.</p>
+        <p>Los apoyos a familia en Guadalajara son una realidad cotidiana — no son un error ni una debilidad. Son un valor. La diferencia entre hacerlo bien y hacerlo mal no es mandarlos o no mandarlos: es si los tienes planificados o si cada mes te sorprenden.</p>
+        <div class="highlight-box">
+          <p>🎯 El presupuesto más útil no es el más perfecto — es el más honesto. Aunque los números no te gusten hoy, verlos claramente es lo que te permite cambiarlos.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l1m4: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>👻 El Dinero que Sale Solo</h3>
+        <p>Los cargos automáticos son uno de los destructores de presupuesto más silenciosos que existen. Los configuras una vez y te olvidas de ellos — pero ellos nunca se olvidan de <em>ti</em>.</p>
+        <p>Suscripciones, seguros, plan de teléfono, servicios de streaming — cada uno es un hoyo programado en tu cuenta BBVA. El problema no es tenerlos. El problema es no saber exactamente cuándo llegan y cuánto cobran.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Cada peso que sale de tu cuenta automáticamente es un peso que necesitas tener apartado — antes de gastar cualquier otra cosa.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>📋 Mapea tus Cargos Automáticos</h3>
+        <p>El primer paso es hacer una lista completa de todo lo que sale automáticamente. La mayoría de las personas se sorprenden cuando suman el total.</p>
+        <p>Para cada cargo necesitas saber tres cosas: <strong>qué es</strong>, <strong>cuánto es</strong> y <strong>qué día cae</strong>.</p>
+        <div class="highlight-box">
+          <p>✏️ Ejercicio: Revisa 2 meses de tu historial en la app de BBVA y anota cada cargo recurrente. Busca suscripciones olvidadas — son muy comunes y fáciles de cancelar.</p>
+        </div>
+        <p>Una vez que tengas la lista completa, súmala. Ese total es dinero comprometido — ya se fue antes de que veas tu saldo.</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — ambos cargos podrían generar un sobregiro antes de que llegue tu nómina. El timing importa tanto como el monto. Cargos el día 1 y 3 con depósito el día 5 significa 2-4 días de riesgo cada mes.">
+        <div class="quiz-q">Tu renta se domicilia el día 1. Tu plan de teléfono el día 3. Tu nómina cae el día 5. ¿Qué puede salir mal?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Nada — las fechas están muy cerca</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Ambos cargos podrían rechazarse antes de que llegue la nómina</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Solo el teléfono podría atrasarse</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Nada si tienes saldo suficiente ese día</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Exacto! El timing lo es todo. Cargos que caen antes de que entre el ingreso crean riesgo de rechazo — necesitas un saldo mínimo que cubra ese hueco.
+        </div>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🛡️ El Saldo Mínimo Seguro</h3>
+        <p>Una regla simple que previene la mayoría de los sobregiros: <strong>establece un saldo mínimo y trátalo como si fuera cero.</strong></p>
+        <p>Elige una cantidad — $1,500 MXN funciona bien para empezar. Entrénate para pensar que tu cuenta está vacía cuando llega a ese número. Nunca gastes por debajo de él intencionalmente.</p>
+        <div class="highlight-box">
+          <p>💡 Ese piso es tu red de seguridad contra cargos automáticos inesperados. Cuando llega un cargo que olvidaste, sale de ese colchón — no de un saldo en cero.</p>
+        </div>
+        <p>Con el tiempo puedes subir ese piso. Pero incluso $1,500 fijos elimina la mayoría del caos.</p>
+      </div>
+    `,
+    content3: () => `
+      <div class="lesson-card">
+        <h3>✂️ La Auditoría de Suscripciones</h3>
+        <p>La persona promedio tiene 4-6 suscripciones activas y solo puede nombrar 2-3 de memoria. Las olvidadas son las peligrosas.</p>
+        <p>Culpables comunes en México: Netflix, Disney+, Amazon Prime, Spotify, Apple Music, iCloud, suscripciones de apps, membresías de gimnasio, y pruebas gratis que se convirtieron en cobros sin que te dieras cuenta.</p>
+        <div class="highlight-box peach">
+          <p>💡 La regla de los 30 días: si no has usado una suscripción en 30 días, cancélala. Siempre puedes reactivarla si la extrañas. La mayoría de las personas nunca lo hace.</p>
+        </div>
+        <p>Cancelar 3 suscripciones olvidadas de $99–$199/mes cada una libera $300–$600/mes — hasta $7,200 al año que pueden ir a deuda o ahorro.</p>
+      </div>
+    `,
+    quiz2: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — la respuesta es $5,148. $199 + $129 + $99 = $427/mes. $427 × 12 meses = $5,124/año. Los cargos recurrentes pequeños suman dinero real cuando los ves en el total anual.">
+        <div class="quiz-q">Descubres que pagas Netflix ($199), Amazon Prime ($129) y una app de música ($99) que casi no usas. Cancelas las tres. ¿Cuánto liberas al año?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$427</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$2,562</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$5,124</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$1,281</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! $427/mes × 12 = $5,124/año. Aplicado a tu tarjeta BBVA, eso podría eliminar cientos de pesos en intereses.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>Cuando compartes departamento, los cargos automáticos se complican. Algunos recibos pueden estar a tu nombre, otros al de tu pareja. Si el Netflix de ella sale de tu cuenta BBVA, o viceversa, es dinero saliendo que quizás no estás rastreando.</p>
+        <p>Vale la pena tener una conversación directa sobre gastos compartidos: quién paga qué, de qué cuenta, en qué fecha. Las parejas que tienen esto claro tienen muchos menos conflictos de dinero y muchos menos sobregiros.</p>
+        <div class="highlight-box">
+          <p>🤝 Activa las notificaciones push de BBVA para cada cargo. Es la herramienta más simple para estar al tanto de los débitos automáticos — y para detectar cobros que no reconoces.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l2m1: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🧮 Ve tu Deuda de Otra Manera</h3>
+        <p>Entender la deuda de forma abstracta es una cosa. Ver tus números específicos es otra completamente. Usa esta calculadora para saber exactamente cuándo quedarás libre de deuda — y cuánto ahorras pagando un poco más cada mes.</p>
+        <p>Ningún dato se guarda. Todo se calcula aquí mismo en la app.</p>
+      </div>
+    `,
+    calc1: () => `
+      <div class="calc-card">
+        <div class="calc-title">💳 Calculadora de Pago de Deuda</div>
+        <div class="calc-desc">Ingresa los datos de tu tarjeta BBVA para ver tu línea de tiempo de liquidación.</div>
+        <div class="calc-row">
+          <label class="calc-label">Saldo actual ($MXN)</label>
+          <input class="calc-input" type="number" id="calc-balance" placeholder="ej. 12,000" min="0">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Tasa mensual (%)</label>
+          <input class="calc-input" type="number" id="calc-apr" placeholder="ej. 3.5" min="0" max="30" step="0.1">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Pago mensual ($MXN)</label>
+          <input class="calc-input" type="number" id="calc-payment" placeholder="ej. 800" min="0">
+        </div>
+        <button class="calc-btn" onclick="calcDebt()">Calcular →</button>
+        <div class="calc-result" id="debt-result">
+          <div class="calc-result-label">Tiempo para liquidar</div>
+          <div class="calc-result-value" id="debt-months"></div>
+          <div class="calc-result-note" id="debt-note"></div>
+        </div>
+      </div>
+    `,
+  },
+
+  l2m2: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>📅 Tu Colchón de Ingreso</h3>
+        <p>Para quienes tienen ingreso variable de reventa, el colchón de ingreso es el amortiguador financiero. Esta herramienta te ayuda a calcular exactamente cuánto necesitas mantener en tu cuenta BBVA para aguantar un mes lento sin estrés.</p>
+      </div>
+    `,
+    calc2: () => `
+      <div class="calc-card">
+        <div class="calc-title">🛡️ Calculadora de Colchón de Ingreso</div>
+        <div class="calc-desc">Calcula cuánto necesitas en cuenta para evitar sobregiros en meses lentos.</div>
+        <div class="calc-row">
+          <label class="calc-label">Gastos fijos mensuales ($MXN)</label>
+          <input class="calc-input" type="number" id="calc-fixed" placeholder="ej. 9,500" min="0">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Ingreso en tu mes más lento ($MXN)</label>
+          <input class="calc-input" type="number" id="calc-slow" placeholder="ej. 10,800" min="0">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Ingreso en tu mes promedio ($MXN)</label>
+          <input class="calc-input" type="number" id="calc-avg" placeholder="ej. 15,000" min="0">
+        </div>
+        <button class="calc-btn" onclick="calcBuffer()">Calcular mi colchón →</button>
+        <div class="calc-result" id="buffer-result">
+          <div class="calc-result-label">Colchón Recomendado</div>
+          <div class="calc-result-value" id="buffer-amount"></div>
+          <div class="calc-result-note" id="buffer-note"></div>
+        </div>
+      </div>
+    `,
+  },
+
+  l2m3: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🏠 La Renta es Solo el Número de Entrada</h3>
+        <p>Cuando la gente calcula si puede pagar un departamento, casi siempre solo piensa en el número de renta. Pero el costo mensual real de tu vivienda es significativamente mayor cuando sumas todo.</p>
+        <p>Este módulo desglosa el panorama completo — especialmente relevante cuando compartes gastos con tu pareja, donde las conversaciones de dinero pueden complicarse.</p>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>💰 El Costo Real de tu Departamento</h3>
+        <p>Más allá de la renta, un departamento típico en Guadalajara involucra varios costos recurrentes que necesitas presupuestar:</p>
+        <div class="highlight-box">
+          <p>
+            🏠 <strong>Renta</strong> — la base<br>
+            ⚡ <strong>Luz (CFE)</strong> — varía por bimestre, típicamente $400–$900/mes<br>
+            💧 <strong>Agua</strong> — a veces incluida, a veces $150–$300/bimestre<br>
+            🌐 <strong>Internet (Izzi, Telmex)</strong> — $400–$700/mes<br>
+            📱 <strong>Gas</strong> — si aplica, $200–$400/mes<br>
+            🧹 <strong>Artículos del hogar</strong> — limpieza, papel, $300–$600/mes<br>
+            🔧 <strong>Reparaciones menores</strong> — presupuesta ~$200–$300/mes en promedio
+          </p>
+        </div>
+        <p>Súmalos y el costo mensual real de tu departamento es típicamente $1,500–$3,000 más que solo la renta.</p>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🤝 Dividir Gastos con tu Pareja</h3>
+        <p>Compartir departamento puede reducir costos significativamente — pero solo si ambos están claros y alineados en el arreglo financiero. Los acuerdos vagos llevan a resentimiento y estrés.</p>
+        <p>Hay tres modelos comunes:</p>
+        <p><strong>División 50/50</strong> — todo se divide en partes iguales. Simple, pero puede sentirse injusto si los ingresos son muy diferentes.</p>
+        <p><strong>División proporcional</strong> — cada quien paga un porcentaje según su ingreso. Más equitativo pero requiere transparencia económica entre ambos.</p>
+        <p><strong>Responsabilidad dividida</strong> — uno paga la renta, el otro paga servicios y súper. Cada quien "es dueño" de ciertas facturas.</p>
+        <div class="highlight-box peach">
+          <p>💡 El modelo que elijan, escríbanlo. Una nota simple con quién paga qué y cuándo elimina la mayoría de los conflictos de dinero antes de que empiecen.</p>
+        </div>
+      </div>
+    `,
+    calc3: () => `
+      <div class="calc-card">
+        <div class="calc-title">🏠 Calculadora de Costo Real de Vivienda</div>
+        <div class="calc-desc">Ingresa todos los gastos para ver el costo total y cuánto le toca a cada quien.</div>
+        <div class="calc-row">
+          <label class="calc-label">Renta ($MXN)</label>
+          <input class="calc-input" type="number" id="hc-renta" placeholder="ej. 8,500" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Luz CFE ($MXN/mes)</label>
+          <input class="calc-input" type="number" id="hc-luz" placeholder="ej. 600" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Internet ($MXN)</label>
+          <input class="calc-input" type="number" id="hc-internet" placeholder="ej. 500" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Gas ($MXN)</label>
+          <input class="calc-input" type="number" id="hc-gas" placeholder="ej. 300" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Agua ($MXN)</label>
+          <input class="calc-input" type="number" id="hc-agua" placeholder="ej. 150" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Artículos del hogar ($MXN)</label>
+          <input class="calc-input" type="number" id="hc-hogar" placeholder="ej. 400" min="0" oninput="calcHousing()">
+        </div>
+        <div class="calc-result show" id="housing-result" style="margin-top:20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <div class="calc-result-label">Costo Total</div>
+              <div class="calc-result-value" id="hc-total" style="font-size:22px">$0</div>
+            </div>
+            <div>
+              <div class="calc-result-label">Por persona (50/50)</div>
+              <div class="calc-result-value" id="hc-per-person" style="font-size:22px">$0</div>
+            </div>
+          </div>
+          <div class="calc-result-note" id="hc-note">Ingresa los gastos para ver el costo total.</div>
+        </div>
+      </div>
+    `,
+  },
+
+  l3m3: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🔒 Dos Tipos de Gastos — Una Diferencia Clave</h3>
+        <p>No todos los gastos son iguales. Algunos están comprometidos sin importar lo que pase. Otros los puedes ajustar cuando el dinero está apretado.</p>
+        <p>Entender cuáles son cuáles es una de las habilidades financieras más prácticas que puedes tener — porque te dice exactamente dónde tienes control cuando necesitas recortar.</p>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🔒 Gastos Fijos</h3>
+        <p>Los gastos fijos son los que permanecen igual cada mes sin importar nada. Los comprometiste — salen hayan sido o no buenas semanas de reventa.</p>
+        <p>Ejemplos: renta, plan de teléfono, internet (Izzi/Telmex), seguro, pagos mínimos de deuda, membresía de gimnasio.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Los gastos fijos son el tipo más peligroso porque no se mueven cuando tu ingreso baja. Si tus gastos fijos son muy altos relativos a tu ingreso, hasta una sola semana lenta crea una crisis.</p>
+        </div>
+        <p>Regla práctica: tus gastos fijos totales no deben superar el 55–60% de tu ingreso base mensual. Si están más alto, casi no tienes margen de error.</p>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🔓 Gastos Variables</h3>
+        <p>Los gastos variables cambian según tus decisiones y circunstancias. Son los gastos sobre los que tienes control real.</p>
+        <p>Ejemplos: súper y comida, gasolina, salidas, ropa, cuidado personal, suscripciones, apoyos a familia.</p>
+        <div class="highlight-box">
+          <p>💡 Los gastos variables son la válvula de presión de tu presupuesto. Cuando llega una semana mala, aquí es donde recortas. Saber exactamente cuáles son variables — y cuánto — te dice cuánto espacio real tienes.</p>
+        </div>
+        <p>La mayoría de las personas subestima significativamente su gasto variable. Las compras pequeñas del día a día suman totales mensuales grandes más rápido de lo que parece posible.</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — el plan de teléfono es el gasto fijo. Fijo significa que el monto no cambia mes a mes. El súper, la gasolina y las salidas varían — tu plan de teléfono es el mismo todos los meses sin importar nada.">
+        <div class="quiz-q">¿Cuál de estos es un gasto FIJO?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">El súper semanal</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Salir a cenar con tu pareja</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Tu plan mensual de teléfono</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Gasolina para el coche</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! Tu plan de teléfono es una cantidad fija que no cambia mes a mes — es gasto comprometido. Los demás varían según tus decisiones y uso.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>Ejercicio útil: anota cada gasto mensual y etiquétalo F (fijo) o V (variable). Suma el total de fijos. Divídelo entre tu ingreso base mensual.</p>
+        <p>Si ese número supera el 60%, estás operando apretado. Por encima del 75% estás en una zona donde una sola semana lenta puede causar daño real — porque casi no queda nada que recortar del lado variable.</p>
+        <div class="highlight-box">
+          <p>🎯 El objetivo a largo plazo: reducir tus gastos fijos como porcentaje del ingreso, ya sea aumentando el ingreso o eliminando gradualmente costos fijos que no son verdaderamente necesarios. Cada gasto fijo que eliminas mejora permanentemente tu estabilidad financiera.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l3m4: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>👨‍👩‍👦 El Apoyo que Mandas No es "Extra"</h3>
+        <p>Si mandas dinero a tu familia con regularidad — ya sea a tus papás, hermanos u otros familiares — eso no es un gasto "extra" ni un favor ocasional. Es un gasto real y recurrente que necesita su propio renglón en tu presupuesto.</p>
+        <p>El objetivo de este módulo no es convencerte de dejar de apoyar a tu familia. Es ayudarte a hacerlo de manera planeada, no improvisada — para que puedas seguir apoyando sin que te descomponga el mes.</p>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>📊 Trátalo como Gasto Fijo</h3>
+        <p>Si apoyas a tu familia de manera regular, ese gasto tiene que aparecer en tu presupuesto base — no en "varios" ni en "lo que sobre". Al final del mes, sale de todas formas.</p>
+        <p><strong>Cómo calcular tu promedio:</strong> suma lo que mandaste los últimos 6 meses y divídelo entre 6. Ese es tu número mensual promedio. Úsalo como base.</p>
+        <div class="highlight-box">
+          <p>💡 Si en algunos meses mandas más y en otros menos, toma el promedio — no el mes más alto ni el más bajo. Presupuesta para el promedio y en los meses buenos puedes mandar un poco más.</p>
+        </div>
+        <p>Una vez que tienes el número, entra en tu presupuesto como cualquier otro gasto comprometido — no como "si me sobra".</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — debes incluirlo como gasto fijo en tu presupuesto. Si lo mandas regularmente, es un compromiso real. No incluirlo es lo que hace que te descuadre el mes cuando llega.">
+        <div class="quiz-q">Tu promedio de apoyo a familia en los últimos 6 meses fue de $1,800/mes. ¿Cómo lo tratas en tu presupuesto?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Lo ignoro — no es un gasto "oficial"</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Lo pongo en "gastos varios"</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Lo incluyo como gasto fijo de $1,800/mes en mi presupuesto base</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Solo lo incluyo cuando mando más de $2,000</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! Si lo mandas regularmente, es un gasto real. Incluirlo en tu presupuesto base es lo que te permite planear el mes con honestidad.
+        </div>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>💬 Cuando el Dinero está Apretado</h3>
+        <p>Habrá meses donde el dinero simplemente no alcance para mandar el monto habitual. Eso no es un fracaso — es una realidad financiera que pasa. Lo importante es cómo comunicarlo.</p>
+        <p><strong>Qué funciona:</strong> avisar con tiempo, ser directo sin dramatizar, dar una fecha realista para cuando puedas retomar. "Este mes me quedé corto, pero el mes que viene te mando X" es una respuesta honesta y respetuosa.</p>
+        <div class="highlight-box peach">
+          <p>💡 Puedes apoyar más cuando estás en mejor posición — pero solo si no te hundes ahora. Cuidar tus finanzas no es ser egoísta: es lo que te permite seguir apoyando a largo plazo.</p>
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>Apoyar a la familia en Guadalajara es normal y común — no es un problema ni una debilidad. Es un valor. La diferencia entre hacerlo bien y hacerlo mal no es si lo haces o no: es si lo tienes planeado o si cada mes te sorprende.</p>
+        <p>Cuando el apoyo está en el presupuesto, puedes decir con calma "ya está contemplado" en lugar de adivinar si vas a alcanzar. Esa claridad reduce el estrés para ti y hace que el apoyo sea más consistente para ellos.</p>
+        <div class="highlight-box">
+          <p>🎯 Próximo paso: suma tus apoyos de los últimos 6 meses, saca el promedio, y ponlo en tu presupuesto como renglón propio. No en "varios" — en su propia categoría.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l3m1: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🛡️ Por qué $5,000 es un Superpoder</h3>
+        <p>Un fondo de emergencia suena aburrido. No lo es. Es lo único que separa a las personas que se quedan atrapadas en el ciclo de deuda de las que logran salir.</p>
+        <p>Sin colchón, cada gasto inesperado — reparación del coche, enfermedad, semana lenta de reventa — va a la tarjeta de crédito o genera un sobregiro. La deuda crece. El estrés crece.</p>
+        <div class="highlight-box">
+          <p>💡 Con solo $5,000 MXN ahorrados, puedes absorber una emergencia típica sin añadir deuda. Eso lo cambia todo.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🎯 La Meta Inicial: $5,000 MXN</h3>
+        <p>No pienses en ahorrar $50,000. Empieza con $5,000 MXN. Es alcanzable en 2–3 meses incluso con ingresos apretados, y provee protección real.</p>
+        <p>La estrategia: tratar el fondo de emergencia como un gasto. Aparta automáticamente una cantidad fija — aunque sean $300 o $500 — cada vez que llega un ingreso. No esperes ver qué sobra. Muévelo primero.</p>
+        <div class="highlight-box peach">
+          <p>🎯 "Págate primero" — ahorra antes de gastar. Incluso cantidades pequeñas se acumulan. $500/semana de reventa que sobra = $2,000/mes hacia tu fondo.</p>
+        </div>
+        <p>Una vez que llegas a $5,000, sigue hasta un mes de gastos fijos, luego dos. Pero empieza con $5,000.</p>
+        <div class="highlight-box">
+          <p>🏦 ¿Dónde guardarlo? En una cuenta BBVA separada de tu cuenta de gastos, o en Nu — que paga rendimiento diario y tiene transferencias SPEI instantáneas. Lo importante es que no esté mezclado con tu dinero de gastos cotidianos.</p>
+        </div>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — va a la tarjeta de crédito, añadiendo a tu deuda. Sin colchón, los gastos inesperados se convierten en deuda casi automáticamente. Eso es el ciclo que un fondo de emergencia rompe.">
+        <div class="quiz-q">Tu coche necesita $3,500 MXN de reparación y no tienes fondo de emergencia. ¿Qué es lo más probable que pase?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Lo cubres fácilmente con tu ingreso del mes</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Va a la tarjeta de crédito, añadiendo a tu deuda</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">El coche se arregla solo de alguna forma</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">No lo reparas y se resuelve</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Exacto! Sin colchón, las emergencias se convierten en deuda. Ese es el ciclo. Un fondo de emergencia lo rompe.
+        </div>
+      </div>
+    `,
+  },
+
+  l3m2: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>💳 Tu Tarjeta BBVA: los Números Reales</h3>
+        <p>La mayoría de las personas saben que la tarjeta de crédito cobra intereses. Muy pocas entienden exactamente cuánto — porque el costo se esconde en pagos mensuales pequeños que se sienten manejables.</p>
+        <p>Este módulo es para hacer visible el costo real. Porque cuando ves los números concretos, la motivación para liquidarla se vuelve mucho más fuerte.</p>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🔢 Cómo Funciona el Interés de tu BBVA</h3>
+        <p>Las tarjetas BBVA cobran una <strong>tasa mensual</strong> — típicamente entre 3% y 5% mensual, lo que se traduce en un <strong>CAT</strong> (Costo Anual Total) de 50%–90% o más al año.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Si solo pagas el mínimo sobre un saldo de $10,000 MXN a 3.5% mensual, puede tomarte más de 8 años liquidarla — y pagarás casi $10,000 en intereses. Pagarás la deuda dos veces.</p>
+        </div>
+        <p>El pago mínimo está diseñado para mantenerte en deuda el mayor tiempo posible. Cubre principalmente intereses, apenas toca el saldo real.</p>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>⚡ El Poder de Pagar Más</h3>
+        <p>Incluso un pequeño aumento sobre el mínimo acorta dramáticamente el tiempo de liquidación.</p>
+        <div class="highlight-box">
+          <p>💡 Sobre un saldo de $10,000 MXN a 3.5%/mes:<br>
+          Pago mínimo (~$300/mes): ~8 años, ~$9,800 en intereses<br>
+          $600/mes: ~2 años, ~$3,500 en intereses<br>
+          $1,200/mes: ~1 año, ~$1,600 en intereses</p>
+        </div>
+        <p>El objetivo no es liquidarla de un golpe. El objetivo es pagar <em>más que el mínimo</em>, consistentemente. Incluso $200 extra al mes hace una diferencia real.</p>
+        <div class="highlight-box peach">
+          <p>📌 MSI (Meses Sin Intereses): útil para compras planeadas grandes si puedes cubrir las mensualidades. Se convierte en trampa si no puedes sostener el pago mensual hasta el final del plazo.</p>
+        </div>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — pagarías $8,000–$10,000 en intereses. A 3.5% mensual pagando solo mínimos sobre $10,000, terminas pagando casi lo mismo que pediste prestado, solo en intereses.">
+        <div class="quiz-q">Tienes $10,000 de saldo en tu tarjeta BBVA a 3.5%/mes. Solo pagas el mínimo cada mes. ¿Cuánto pagarás aproximadamente en intereses durante toda la vida de la deuda?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$500–$1,000</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$2,000–$3,000</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">$8,000–$10,000</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">$15,000+</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Así es! Pagarás casi lo mismo que pediste prestado — solo en intereses. Por eso pagar más del mínimo importa tanto.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>Hay una trampa en la que cae mucha gente: usar la tarjeta para cubrir gastos del día a día cuando el efectivo escasea, pagar solo el mínimo, y nunca del todo liquidarla. El saldo sube lentamente — $500 aquí, $800 allá — hasta que un día se convirtió en un problema serio.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Si tu saldo BBVA está creciendo mes a mes — aunque sea despacio — es una señal de alerta. El objetivo es un saldo que baje cada mes, sin importar qué tan lento.</p>
+        </div>
+        <p>Aunque solo puedas pagar $100 extra sobre el mínimo este mes, hazlo. El hábito de pagar más del mínimo es más importante que el monto por ahora.</p>
+      </div>
+    `,
+  },
+
+  l3m5: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>📋 ¿Tienes Obligaciones Fiscales por tu Reventa?</h3>
+        <p>Si además de tu nómina ganas dinero por reventa, freelance u otro ingreso adicional — y ese ingreso supera ciertos umbrales — sí tienes obligaciones fiscales ante el SAT, incluso si tu empleador ya descuenta impuestos de tu sueldo.</p>
+        <p>Este módulo es informativo. Para tu situación específica, siempre consulta a un contador. Al final hay un enlace al portal del SAT.</p>
+        <div class="highlight-box coral">
+          <p>⚠️ Ignorar estas obligaciones no las hace desaparecer. El SAT cruza datos automáticamente — incluyendo los de MercadoLibre.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🏛️ El SAT y el RESICO</h3>
+        <p>El <strong>SAT</strong> (Servicio de Administración Tributaria) es el equivalente mexicano del IRS en Estados Unidos — la autoridad fiscal federal.</p>
+        <p>Para personas físicas con actividad empresarial o ingresos adicionales al salario, el régimen más común y simplificado es el <strong>RESICO</strong> (Régimen Simplificado de Confianza).</p>
+        <div class="highlight-box">
+          <p>
+            📌 RESICO en resumen:<br>
+            — Tasas bajas: entre 1% y 2.5% sobre ingresos anuales<br>
+            — Declaraciones mensuales simples en el portal del SAT<br>
+            — Requiere RFC activo y Contraseña SAT<br>
+            — Para ingresos anuales de hasta $3.5 millones MXN
+          </p>
+        </div>
+        <p>Si ya tienes RFC (de tu trabajo formal), necesitas actualizarlo para incluir tu actividad de reventa. Si no tienes RFC, debes tramitarlo en el portal sat.gob.mx.</p>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🧾 MercadoLibre y la Retención Automática</h3>
+        <p>Si vendes en MercadoLibre, la plataforma retiene automáticamente ISR (Impuesto Sobre la Renta) cuando tus ventas mensuales superan ciertos montos. Esa retención aparece en tu estado de cuenta de la plataforma.</p>
+        <p><strong>¿Qué hacer con esas retenciones?</strong> Puedes acreditarlas (restarlas) de lo que debes al SAT en tu declaración mensual. Guarda todos tus comprobantes de retención.</p>
+        <div class="highlight-box peach">
+          <p>💡 Llevar un registro simple de ingresos y gastos de reventa te facilita mucho la declaración mensual. Una hoja de cálculo con fecha, concepto e importe es suficiente para empezar.</p>
+        </div>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — sí tienes obligaciones adicionales. Tener trabajo formal no te exime de declarar ingresos por reventa. El SAT los puede detectar a través de MercadoLibre, transferencias SPEI y otros medios.">
+        <div class="quiz-q">Ganas $18,000/mes de nómina y en promedio $6,000/mes de reventa. ¿Tienes obligaciones fiscales adicionales más allá de la retención de tu empleador?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">No — mi empresa ya paga mis impuestos</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Solo si vendo más de $100,000 al año</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">Sí — el ingreso de reventa es adicional y debe declararse por separado</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Solo si facturo a otras empresas</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! Los ingresos de reventa son independientes de tu nómina. Aunque tu empresa retenga ISR de tu sueldo, los ingresos adicionales requieren declaración por separado.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>Muchos revendedores en Guadalajara operan sin declarar, no por mala fe, sino porque nadie les explicó que tenían obligaciones. El RESICO existe precisamente para hacer esto más simple y accesible.</p>
+        <p>Estar al corriente con el SAT te protege de multas, recargos y notificaciones inesperadas — y te abre la puerta a tener historial fiscal limpio, que eventualmente importa si quieres crédito formal o crecimiento del negocio.</p>
+        <div class="highlight-box">
+          <p>🔗 Portal SAT: <strong>sat.gob.mx</strong> — ahí puedes tramitar tu RFC, registrarte en RESICO y hacer tus declaraciones mensuales.<br>Consulta un contador para tu situación específica.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l4m3: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>📈 Empezar a Invertir en México</h3>
+        <p>Tu objetivo de largo plazo es el ingreso pasivo — que tu dinero trabaje para ti, no solo tú para el dinero. Este módulo te muestra opciones reales, accesibles desde Guadalajara, con números reales.</p>
+        <p>Tono: realista. Esto es sobre empezar pequeño y construir el hábito. No hay atajos ni promesas de riqueza rápida.</p>
+        <div class="highlight-box">
+          <p>💡 Primero el fondo de emergencia. Primero pagar deuda de alto costo. Luego invertir. El orden importa.</p>
+        </div>
+      </div>
+    `,
+    content1: () => `
+      <div class="lesson-card">
+        <h3>🏛️ CETES Directo — Riesgo Casi Cero</h3>
+        <p>Los <strong>CETES</strong> (Certificados de la Tesorería) son bonos del gobierno federal mexicano. Invertir en ellos a través de <strong>cetesdirecto.com</strong> es la opción más segura que existe en México — el riesgo es prácticamente cero porque el emisor es el gobierno federal.</p>
+        <div class="highlight-box">
+          <p>
+            📌 CETES Directo en resumen:<br>
+            — Inversión mínima: $100 MXN (~$5 USD)<br>
+            — Rendimiento: varía con la tasa del Banco de México, actualmente en el rango de 9–11% anual<br>
+            — Plazos: 28, 91, 182 días y más<br>
+            — Cuenta gratis en cetesdirecto.com con tu CURP y RFC
+          </p>
+        </div>
+        <p>Es el equivalente mexicano de los bonos del Tesoro estadounidense — pero accesible desde $100 pesos y sin necesidad de intermediarios.</p>
+      </div>
+    `,
+    content2: () => `
+      <div class="lesson-card">
+        <h3>🟣 Nu Inversiones y GBM+</h3>
+        <p><strong>Nu Inversiones</strong> (Nubank México): rinde interés diario sobre tu saldo disponible — como una cuenta de ahorro que paga mientras el dinero está ahí. Liquidez inmediata vía SPEI, sin mínimo, sin comisiones. Ideal para el fondo de emergencia que también rinde algo.</p>
+        <p><strong>GBM+</strong>: app de inversión mexicana con acceso a fondos de renta fija y ETFs de bajo costo. Buena opción para el siguiente paso después de tener fondo de emergencia y empezar a construir portafolio.</p>
+        <div class="highlight-box peach">
+          <p>⚠️ Lo que NO son inversiones:<br>
+          — Seguros de vida con ahorro (rendimientos muy bajos, comisiones altas)<br>
+          — Cualquier esquema que prometa más del 5%/mes "garantizado" — eso no existe<br>
+          — Criptomonedas como primera inversión — demasiada volatilidad sin base
+          </p>
+        </div>
+      </div>
+    `,
+    content3: () => `
+      <div class="lesson-card">
+        <h3>🔴 Señales de Alerta: Fraudes de Inversión</h3>
+        <p>En México son muy comunes los esquemas que se disfrazan de inversiones. Antes de poner un peso en cualquier "oportunidad", busca estas señales de alerta:</p>
+        <div class="highlight-box coral">
+          <p>
+            ⛔ Rendimientos "garantizados" altos (más de 5%/mes)<br>
+            ⛔ Presión para decidir rápido o "perder la oportunidad"<br>
+            ⛔ Sin registro ante la CNBV (Comisión Nacional Bancaria)<br>
+            ⛔ El modelo de negocio no está claro o depende de reclutar a otros<br>
+            ⛔ Te piden depositar a cuenta personal, no a institución financiera
+          </p>
+        </div>
+        <p>Si alguien te ofrece algo que suena demasiado bueno para ser verdad — lo es. Siempre.</p>
+      </div>
+    `,
+    quiz1: () => `
+      <div class="quiz-card" data-wrong="❌ No exactamente — CETES Directo es la opción de riesgo casi cero desde $100 MXN. Nu rinde pero es más variable. GBM+ tiene más riesgo. Los seguros de ahorro tienen rendimientos muy bajos y comisiones altas.">
+        <div class="quiz-q">¿Qué opción tiene riesgo casi cero y está disponible desde $100 MXN?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="answerQuiz(this, false)">GBM+ — ETFs de bajo costo</button>
+          <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true)">CETES Directo — bonos del gobierno federal</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Seguro de vida con componente de ahorro</button>
+          <button class="quiz-option" onclick="answerQuiz(this, false)">Nu Inversiones — rendimiento diario</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback">
+          ✅ ¡Correcto! CETES Directo tiene riesgo prácticamente cero porque el emisor es el gobierno federal mexicano. Es el punto de entrada ideal para quienes empiezan a invertir.
+        </div>
+      </div>
+    `,
+    realtalk: () => `
+      <div class="lesson-card" style="border-left: 5px solid var(--peach); background: linear-gradient(135deg, #fff8f3, white);">
+        <h3>💬 Seamos Honestos</h3>
+        <p>El ingreso pasivo no empieza con una decisión grande — empieza con $500 en CETES, luego $1,000, luego más. Lo que hace la diferencia no es el monto inicial sino la consistencia y el tiempo.</p>
+        <p>A 10% anual, $5,000 MXN invertidos en CETES se convierten en $5,500 en un año. No es transformador todavía — pero es el hábito que, repetido mes a mes, sí lo es.</p>
+        <div class="highlight-box">
+          <p>🔗 Empieza aquí: <strong>cetesdirecto.com</strong> — regístrate con tu CURP, RFC y cuenta CLABE de BBVA. El proceso toma menos de 20 minutos.</p>
+        </div>
+      </div>
+    `,
+  },
+
+  l5m2: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>📅 Revisión Trimestral: ¿Estás Avanzando de Verdad?</h3>
+        <p>La revisión mensual te muestra cómo vas semana a semana. La revisión trimestral te muestra si realmente estás moviéndote en la dirección correcta — o si solo estás corriendo en círculos.</p>
+        <p>Hazte estas preguntas con honestidad cada tres meses. Las respuestas no se guardan — esto es solo para ti.</p>
+      </div>
+    `,
+    checkin1: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Disminuyó tu deuda total en los últimos 3 meses?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q1')">Sí, bajó</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q1')">No, se quedó igual o subió</button>
+        </div>
+        <div class="checkin-feedback" id="q1-feedback"></div>
+      </div>
+    `,
+    checkin2: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Creció tu fondo de emergencia en los últimos 3 meses?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q2')">Sí, creció</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q2')">No, se quedó igual o bajé de él</button>
+        </div>
+        <div class="checkin-feedback" id="q2-feedback"></div>
+      </div>
+    `,
+    checkin3: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Bajaron tus gastos fijos como porcentaje de tu ingreso?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q3')">Sí, tengo más margen ahora</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q3')">No, están igual o más altos</button>
+        </div>
+        <div class="checkin-feedback" id="q3-feedback"></div>
+      </div>
+    `,
+    checkin4: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Empezaste a invertir algo, aunque sea poco?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q4')">Sí, aunque sea $500 en CETES</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q4')">Todavía no</button>
+        </div>
+        <div class="checkin-feedback" id="q4-feedback"></div>
+      </div>
+    `,
+    checkin5: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Los apoyos a familia están en tu presupuesto, o siguen siendo improvisados?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q5')">Están en el presupuesto</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q5')">Siguen siendo improvisados</button>
+        </div>
+        <div class="checkin-feedback" id="q5-feedback"></div>
+      </div>
+    `,
+    checkin6: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Cumpliste con tus obligaciones fiscales ante el SAT este trimestre (si aplica)?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q6')">Sí, al corriente</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q6')">No aplica / Todavía pendiente</button>
+        </div>
+        <div class="checkin-feedback" id="q6-feedback"></div>
+      </div>
+    `,
+    checkin7: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Cuál es un hábito financiero que no tenías hace tres meses y que ya tienes ahora?</div>
+        <div class="checkin-options">
+          <button class="checkin-opt yes" onclick="answerCheckin(this,'yes','q7')">Tengo uno — lo identifico</button>
+          <button class="checkin-opt no" onclick="answerCheckin(this,'no','q7')">Todavía no veo uno concreto</button>
+        </div>
+        <div class="checkin-feedback" id="q7-feedback"></div>
+      </div>
+    `,
+  },
+
+  l4m1: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🎯 Decisiones Reales de Dinero</h3>
+        <p>Saber qué hacer y realmente hacerlo son dos habilidades distintas. En este módulo vas a enfrentar cuatro situaciones realistas — el tipo que se presentan en la vida cotidiana — y elegir cómo manejarlas.</p>
+        <p>No hay una única respuesta "perfecta" para cada situación, pero algunas decisiones llevan a resultados mucho mejores que otras. Descubramos qué harías tú.</p>
+      </div>
+    `,
+    scenario1: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 1 de 4</div>
+        <div class="scenario-story">
+          Es jueves. Tuviste tu mejor semana de reventa — entraron $7,500 MXN. Tu renta vence el día 1 (en 10 días), tienes $1,800 en cuenta y la renta es $8,500. También tienes $12,000 de saldo en la tarjeta BBVA.
+        </div>
+        <div class="scenario-q">¿Qué haces con los $7,500?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s1')">Aparto $8,500 para la renta, uso los $800 restantes para pago extra a la tarjeta</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s1')">Guardo todo en cuenta por ahora, la renta ya está cubierta</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s1')">Llevas semanas trabajando duro — date un gusto este fin de semana</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s1')">Pago el mínimo de la tarjeta y guardo el resto</button>
+        </div>
+        <div class="scenario-result" id="s1-result"></div>
+      </div>
+    `,
+    scenario2: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 2 de 4</div>
+        <div class="scenario-story">
+          Mes lento de reventa. Solo entraron $3,200 esta semana. Tu plan de teléfono ($399) se domicilia mañana y el presupuesto de comida de la semana está por agotarse. Tienes $620 en cuenta.
+        </div>
+        <div class="scenario-q">¿Cuál es tu movimiento?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s2')">Dejo que pase el teléfono, bajo a $250 en súper esta semana y busco más producto para revender</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s2')">Pongo el súper en la tarjeta para tener efectivo para el teléfono</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s2')">Llamo a Telcel/Movistar para pedir un día más de plazo</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s2')">Ignoro el cargo del teléfono y espero que se arregle</button>
+        </div>
+        <div class="scenario-result" id="s2-result"></div>
+      </div>
+    `,
+    scenario3: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 3 de 4</div>
+        <div class="scenario-story">
+          Tu pareja sugiere que se cambien a un departamento más grande — $2,500 MXN/mes más de renta, pero tiene cuarto de lavado y mejor ubicación. Entre los dos actualmente equilibran (ingreso = gastos). Ella dice que pueden recortar salidas para cubrirlo.
+        </div>
+        <div class="scenario-q">¿Cómo piensas esta decisión?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s3')">Primero revisar los números reales — ¿cada quien puede genuinamente recortar $1,250/mes de su presupuesto?</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s3')">Hay que ir — el cuarto de lavado vale la pena y ya se verá cómo</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s3')">Propones guardar $2,500/mes extra por dos meses primero para probar si es realista</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s3')">Aceptas, pero planeas conseguir más mercancía para revender y cubrir la diferencia</button>
+        </div>
+        <div class="scenario-result" id="s3-result"></div>
+      </div>
+    `,
+    scenario4: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 4 de 4</div>
+        <div class="scenario-story">
+          Revisando tu BBVA notas tres suscripciones que no has usado en más de un mes: Netflix ($199), Amazon Prime ($129) y una app de fitness ($149). Son $477/mes. También tienes $15,000 en saldo de tarjeta BBVA.
+        </div>
+        <div class="scenario-q">¿Qué haces con los $477/mes si cancelas las tres?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s4')">Cancelo las tres y el $477 extra va directo al pago de la tarjeta cada mes</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s4')">Cancelo las dos que uso menos, me quedo con una</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s4')">Las cancelo pero no cambio mi pago de tarjeta — los $477 son para gastos del mes</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s4')">Las dejo — $477/mes no vale el lío de cancelar</button>
+        </div>
+        <div class="scenario-result" id="s4-result"></div>
+      </div>
+    `,
+  },
+
+  l4m2: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🎲 Más Decisiones Reales</h3>
+        <p>La Parte 2 cubre situaciones un poco más difíciles — donde la respuesta "correcta" no es obvia y las prioridades en conflicto hacen más difícil elegir. Estos son los momentos donde los hábitos financieros realmente se construyen o se rompen.</p>
+      </div>
+    `,
+    scenario5: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 1 de 4</div>
+        <div class="scenario-story">
+          Tu coche necesita cambio de aceite ($550) y escobillas nuevas ($180). Lo has pospuesto dos meses porque el dinero ha estado apretado. Acaba de entrar tu nómina de $9,500 MXN y tienes $2,200 en cuenta. La renta vence en 3 semanas ($8,500).
+        </div>
+        <div class="scenario-q">¿Qué haces con el mantenimiento del coche?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s5')">Hago el cambio de aceite y las escobillas ahora — el coche es clave para la reventa y el trabajo</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s5')">Solo el aceite, dejo las escobillas para después</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s5')">Lo dejo para después y guardo todo para la renta</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s5')">Lo pongo en la tarjeta de crédito</button>
+        </div>
+        <div class="scenario-result" id="s5-result"></div>
+      </div>
+    `,
+    scenario6: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 2 de 4</div>
+        <div class="scenario-story">
+          Un amigo te pide $1,000 prestados — dice que te los regresa en dos semanas. Tienes $2,100 en cuenta, tu plan de teléfono ($399) se domicilia en 5 días y no cobras hasta dentro de 9 días. Tu amigo ya te ha pedido prestado antes y tardó más de lo dicho.
+        </div>
+        <div class="scenario-q">¿Qué haces?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s6')">Le explico que no puedo — mi teléfono se domicilia en 5 días y me quedaría sin margen</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s6')">Le ofrezco $300–$400 si me puedo acomodar, explico que más no puedo</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s6')">Le presto los $1,000 — es mi amigo y dijo dos semanas</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s6')">Le presto y espero que mi ingreso entre antes del teléfono</button>
+        </div>
+        <div class="scenario-result" id="s6-result"></div>
+      </div>
+    `,
+    scenario7: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 3 de 4</div>
+        <div class="scenario-story">
+          Llevas 6 semanas cumpliendo con el presupuesto. Te sobran $800 este mes. Tu tarjeta BBVA tiene $14,000 de saldo. Tienes $1,500 en ahorros y no tienes fondo de emergencia real.
+        </div>
+        <div class="scenario-q">¿Qué haces con los $800?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s7')">Lo divido: $400 al fondo de emergencia, $400 extra a la tarjeta</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s7')">Todo a la tarjeta — salir de deuda es prioridad</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s7')">Todo al fondo de emergencia — primero necesito ese colchón</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s7')">Me lo merezco — date un gusto por las 6 semanas de disciplina</button>
+        </div>
+        <div class="scenario-result" id="s7-result"></div>
+      </div>
+    `,
+    scenario8: () => `
+      <div class="scenario-card">
+        <div class="calc-title">📖 Escenario 4 de 4</div>
+        <div class="scenario-story">
+          Tu pareja propone abrir una cuenta compartida para gastos del departamento — renta, servicios, súper. Su plan: cada quien deposita $5,500/mes y pagan todo de ahí. Tu presupuesto ya está apretado y $5,500 es más de lo que actualmente gastas tú en gastos compartidos.
+        </div>
+        <div class="scenario-q">¿Cómo respondes?</div>
+        <div class="scenario-options">
+          <button class="scenario-option" onclick="answerScenario(this,'best','s8')">Tengo una conversación honesta — le muestro mis números y propongo una cantidad que sí funciona para mi presupuesto</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s8')">Acepto los $5,500 — ya veré cómo le hago</button>
+          <button class="scenario-option" onclick="answerScenario(this,'ok','s8')">Propongo empezar solo con renta y servicios, no con el súper</button>
+          <button class="scenario-option" onclick="answerScenario(this,'bad','s8')">Declino por completo — las finanzas compartidas se complican mucho</button>
+        </div>
+        <div class="scenario-result" id="s8-result"></div>
+      </div>
+    `,
+  },
+
+  l5m1: {
+    intro: () => `
+      <div class="lesson-card">
+        <h3>🪞 Momento de Ser Honestos</h3>
+        <p>Esta revisión no es un examen. No hay respuestas correctas o incorrectas — solo honestas. El objetivo es ayudarte a ver tu progreso real e identificar dónde enfocar lo siguiente.</p>
+        <p>Seis preguntas sobre los hábitos que más importan. Vuelve a este módulo cada mes y observa cómo cambian tus respuestas con el tiempo.</p>
+        <div class="highlight-box">
+          <p>💡 Nada se guarda de esta revisión. Es solo para tu reflexión personal — privacidad completa.</p>
+        </div>
+      </div>
+    `,
+    checkin1: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">Este mes, ¿gasté menos de lo que gané?</div>
+        <div class="checkin-sub">Aunque sea por poco. Sé honesto/a.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c1')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c1')">❌ No</button>
+        </div>
+        <div class="checkin-response" id="c1-response"></div>
+      </div>
+    `,
+    checkin2: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Evité un sobregiro o rechazo de cargo este mes?</div>
+        <div class="checkin-sub">Aunque estuvo cerca, un sí es un sí.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c2')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c2')">❌ No</button>
+        </div>
+        <div class="checkin-response" id="c2-response"></div>
+      </div>
+    `,
+    checkin3: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Pagué más del mínimo en mi tarjeta BBVA?</div>
+        <div class="checkin-sub">Aunque sea $100 extra cuenta.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c3')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c3')">❌ No</button>
+        </div>
+        <div class="checkin-response" id="c3-response"></div>
+      </div>
+    `,
+    checkin4: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Cancelé o evité al menos un gasto innecesario este mes?</div>
+        <div class="checkin-sub">Una suscripción, una compra impulsiva que decidiste no hacer, una opción más barata que elegiste.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c4')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c4')">❌ No</button>
+        </div>
+        <div class="checkin-response" id="c4-response"></div>
+      </div>
+    `,
+    checkin5: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Ahorré algo este mes — aunque sea poco?</div>
+        <div class="checkin-sub">$200, $500, $1,000 — cualquier número positivo cuenta.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c5')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c5')">❌ No</button>
+        </div>
+        <div class="checkin-response" id="c5-response"></div>
+      </div>
+    `,
+    checkin6: () => `
+      <div class="checkin-card">
+        <div class="checkin-q">¿Te sientes más en control de tu dinero que el mes pasado?</div>
+        <div class="checkin-sub">Esto es sobre consciencia y confianza, no solo números.</div>
+        <div class="checkin-btns">
+          <button class="checkin-btn yes" onclick="answerCheckin(this,'yes','c6')">✅ Sí</button>
+          <button class="checkin-btn no" onclick="answerCheckin(this,'no','c6')">❌ Todavía no</button>
+        </div>
+        <div class="checkin-response" id="c6-response"></div>
+      </div>
+    `,
+  },
+};
+
+const checkinResponses = {
+  // l5m1 — Revisión mensual (c1-c6)
+  c1: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🎉 ¡Esa es la base! Cada mes que haces esto, avanzas. Mantén la racha.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '💪 Respuesta honesta — eso toma valor. Fíjate qué te hizo pasarte: ¿fue una categoría? ¿Una semana? Saber dónde está la brecha es lo que te ayuda a cerrarla.' }
+  },
+  c2: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '✅ ¡Sólido! Sin sobregiro significa que tu manejo del timing y del saldo está mejorando. Eso es progreso real.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '🔍 Los sobregiros casi siempre vienen de problemas de timing, no de falta de dinero. Revisa el módulo 4 — la estrategia del saldo mínimo seguro puede ayudarte a evitar esto.' }
+  },
+  c3: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '⚡ Cada peso extra recorta tu tiempo de liquidación. Los esfuerzos pequeños y consistentes se acumulan en resultados grandes.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '📌 Incluso $100 extra importan más de lo que crees con el tiempo. Si el dinero está apretado, pon una meta para el mes que viene: solo $100 sobre el mínimo. Las victorias pequeñas construyen el impulso.' }
+  },
+  c4: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '✂️ ¡Eso es el hábito de consciencia en acción! Notar un gasto innecesario y actuar — aunque sea una vez — entrena el músculo para hacerlo consistentemente.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '🔍 Vale la pena buscarlo el mes que viene. Dedica 5 minutos a revisar tu historial BBVA buscando algo que estés pagando y que no uses activamente. Una cancelación puede liberar dinero real.' }
+  },
+  c5: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🌱 ¡Sí! Aunque sea poco es una victoria. El ahorro no se trata del monto ahora mismo — es el hábito. Cada vez que ahorras algo, te estás contando una historia diferente sobre quién eres financieramente.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '💭 Este es el más difícil cuando el dinero está apretado. Si genuinamente no sobró nada, eso es información real — significa que los gastos necesitan bajar o el ingreso subir antes de que el ahorro sea posible. Si había un poco pero se fue, ahí entra el hábito de "págate primero".' }
+  },
+  c6: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🏆 Esta es la respuesta más importante de todas. La confianza financiera crece con el conocimiento y las victorias pequeñas. Que te sientas más en control significa que los hábitos están funcionando — sigue adelante.' },
+    no: { bg: '#fff9e6', color: '#856404', text: '💪 Respuesta honesta, y vale algo. La consciencia es el primer paso — incluso reconocer lo que no está funcionando es progreso. ¿Qué es una cosa pequeña que podrías cambiar el mes que viene para sentirte un poco más en control?' }
+  },
+  // l5m2 — Revisión trimestral (q1-q7)
+  q1: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '📉 ¡Deuda a la baja! Aunque sea un poco, eso es la dirección correcta. Tres meses más y habrá una diferencia notable.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '🔍 Si el saldo no bajó en 3 meses, algo está impidiendo el avance — nuevo gasto en la tarjeta, solo pagando el mínimo, o gastos que superan el ingreso. Identifica cuál es y enfoca ahí el siguiente trimestre.' }
+  },
+  q2: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🛡️ ¡Tu red de seguridad está creciendo! Cada peso que entra ahí te da más margen para aguantar los imprevistos sin endeudarte.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '💭 Si no creció o tuviste que usarlo, eso es información útil. ¿Fue una emergencia real (para eso existe) o cubrió algo que debió haber estado en el presupuesto? La diferencia importa para saber qué ajustar.' }
+  },
+  q3: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '💪 Más margen significa más resiliencia. Cada punto porcentual que bajas tus gastos fijos como parte del ingreso te da más flexibilidad para absorber un mes malo o una oportunidad inesperada.' },
+    no: { bg: '#fff9e6', color: '#856404', text: '📊 Si tus gastos fijos siguen siendo el mismo % o más, revisa si hay algún compromiso fijo que puedas eliminar en los próximos 3 meses — una suscripción anual, un servicio que no usas, un plan que puedes cambiar por uno más económico.' }
+  },
+  q4: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '📈 ¡El hábito de invertir está vivo! No importa el monto — lo que importa es que el dinero está empezando a trabajar para ti, no solo al revés.' },
+    no: { bg: '#fff9e6', color: '#856404', text: '🎯 Si todavía no empiezas, probablemente faltan dos cosas: fondo de emergencia mínimo y deuda de alto costo controlada. Si ya tienes esas bases, CETES Directo desde $100 pesos es el primer paso — sin excusas de monto.' }
+  },
+  q5: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '✅ Eso es planear con honestidad. Cuando los apoyos están en el presupuesto, puedes darlos con tranquilidad en lugar de angustia — y eso es mejor para todos.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '📋 Si siguen siendo improvisados, saca el promedio de lo que mandaste este trimestre. Ese número va en tu presupuesto del próximo mes como línea propia. Un solo cambio, resultado inmediato.' }
+  },
+  q6: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🏛️ Al corriente con el SAT. Eso protege tu historial fiscal y cierra la puerta a sorpresas desagradables. Bien hecho.' },
+    no: { bg: '#fce4ec', color: '#c62828', text: '⚠️ Si tienes obligaciones pendientes, este trimestre es buen momento para resolverlas — mientras más tiempo pasa, más acumulan recargos. Entra a sat.gob.mx o consulta a un contador esta semana.' }
+  },
+  q7: {
+    yes: { bg: '#e8f5e9', color: '#2e7d32', text: '🌱 Ese hábito es evidencia real de que estás cambiando. Los hábitos financieros son la base de todo lo demás — y tú tienes uno nuevo que hace tres meses no tenías.' },
+    no: { bg: '#fff9e6', color: '#856404', text: '🤔 Si no identificas uno, elige uno concreto para el próximo trimestre: revisar el historial BBVA cada semana, pagar más del mínimo en la tarjeta, o apartar $500 al primer ingreso del mes. Uno. Solo uno.' }
+  }
+};
+
+const scenarioFeedback = {
+  s1: {
+    best: { cls: 'sage', emoji: '🏆', text: '¡Excelente! Asegurar la renta primero no es negociable, y usar el sobrante para atacar la deuda es exactamente el movimiento correcto. Este es el tipo de decisión disciplinada que te hace avanzar.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Decisión segura. Guardar todo mantiene las opciones abiertas. El único riesgo es perder el rastro del dinero — asegúrate de que el dinero de la renta esté claramente separado.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Después de semanas trabajando duro, las ganas de darte un gusto son reales — y en moderación no están mal. Pero con la renta venciendo en 10 días y deuda existente, el ingreso extra de esta semana se necesita para estabilidad primero.' }
+  },
+  s2: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Duro pero inteligente. Reducir el gasto en súper duele a corto plazo, pero mantener el teléfono activo y evitar añadir a la tarjeta es la prioridad correcta.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Razonable. Muchos proveedores permiten aplazamientos cortos. Solo asegúrate de darle seguimiento — los pagos aplazados se convierten en pagos perdidos si se olvidan.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Añadir a la tarjeta para gastos cotidianos empeora el problema de deuda. Se siente como solución hoy, pero crea un problema mayor el mes que viene.' }
+  },
+  s3: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Así se toman las decisiones financieras. Revisar los números reales primero previene una trampa común: aceptar gastos basándose en suposiciones optimistas de "ya recortaremos" que no se materializan.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Prueba inteligente. Demostrar que pueden ahorrar el monto antes de comprometerse es un enfoque sólido. Hace la decisión basada en evidencia.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Cuando actualmente equilibran, añadir gastos fijos sin un plan concreto y probado casi siempre termina en más deuda. Las mejoras de estilo de vida son excelentes — cuando los números genuinamente las soportan.' }
+  },
+  s4: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Perfecto. Cancelar suscripciones no usadas Y redirigir ese dinero a deuda es la doble victoria. $477/mes extra sobre $15,000 de saldo BBVA acelera dramáticamente tu liquidación y ahorra miles en intereses.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Compromiso razonable. Quedarse con una suscripción que sí usas está bien — lo importante es ser intencional, no olvidar que la estás pagando.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Esta es la trampa: liberaste dinero pero se evaporó en gasto no rastreado. Los ahorros solo ayudan si los redirigues intencionalmente. El dinero libre necesita un destino.' }
+  },
+  s5: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Prioridad inteligente. El coche es clave para tu trabajo y para buscar mercancía de reventa — descuidarlo es falsa economía. Un cambio de aceite pospuesto puede llevar a un daño de motor que cuesta mucho más.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Triaje razonable. El cambio de aceite es la prioridad mayor. Las escobillas importan para seguridad pero pueden esperar un poco más que el aceite atrasado.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Posponer el mantenimiento del coche para ahorrar $730 cuando tu ingreso depende de él es un movimiento de alto riesgo. Una avería significa cero ingreso más una factura grande. El fondo de emergencia existe exactamente para este tipo de gasto esencial.' }
+  },
+  s6: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Honesto y protector. Decir no a un préstamo cuando genuinamente no puedes no es ser mal amigo — es ser un adulto responsable. Un amigo que realmente te aprecia no va a querer que te descuadres las finanzas por él.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Buen punto medio — estás siendo honesto sobre tus límites mientras intentas ayudar donde puedes con seguridad.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Prestar dinero que no tienes es como un problema financiero se convierte en dos. Un rechazo de cargo más un reembolso lento convierte el problema de $1,000 de tu amigo en tu estrés financiero continuo.' }
+  },
+  s7: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Excelente balance. Con solo $1,500 en ahorros, estás a una emergencia pequeña de poner algo en la tarjeta. Construir ahorros y pagar deuda simultáneamente es lento pero crea resiliencia. Ningún problema empeora.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Ambos enfoques de un solo objetivo son defendibles. Todo a deuda ahorra más en intereses. Todo a ahorro construye la red de seguridad más rápido. Cualquiera es mejor que gastarlo. La división es óptima pero estos también funcionan.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Después de 6 semanas de disciplina, absolutamente mereces reconocimiento — pero una recompensa financiera en esta etapa deshace progreso real. Los pequeños gustos están bien; usar tu superávit para eso mientras cargas deuda y sin ahorros no es el movimiento ahora.' }
+  },
+  s8: {
+    best: { cls: 'sage', emoji: '🏆', text: 'Esta es la respuesta correcta y requiere valor real. Las conversaciones de dinero con parejas son incómodas — pero aceptar algo que rompe tu presupuesto solo para evitar la conversación crea resentimiento y estrés financiero después. Honesto = saludable.' },
+    ok: { cls: 'gold', emoji: '👍', text: 'Un punto de partida razonable. Separar renta/servicios del súper lo mantiene más simple y permite probar el concepto de cuenta compartida sin sobrecomprometerse.' },
+    bad: { cls: 'coral', emoji: '⚠️', text: 'Aceptar $5,500 cuando tu presupuesto no lo soporta es cómo las buenas intenciones se convierten en tensión financiera. Las finanzas compartidas funcionan cuando ambas personas entienden los números reales — no cuando uno está luchando en silencio para seguir el ritmo.' }
+  }
+};
+
+// ===== TIPS DATA =====
+const tips = [
+  {
+    tag: 'Ingreso variable', color: 'peach',
+    title: 'Presupuesta para tu mes más lento, no el mejor',
+    preview: 'Con ingreso de reventa, siempre planea alrededor del monto más bajo realista.',
+    body: 'Toma tus 3 meses más lentos del último año. Promedíalos. Eso es tu base de presupuesto. Todo lo que ganes por encima en meses buenos es superávit — apártalo antes de gastar. Esto te mantiene seguro en períodos lentos y te ayuda a construir ahorro en los buenos.'
+  },
+  {
+    tag: 'Cuenta BBVA', color: 'sage',
+    title: 'Establece un saldo mínimo seguro',
+    preview: 'Elige un número — $1,500, $2,000 — y trátalo como cero en tu cabeza.',
+    body: 'Cuando tu cuenta llega a tu piso, estás "sin dinero" aunque técnicamente tengas algo. Esto te da un colchón para cargos automáticos que olvidaste, huecos de timing entre facturas e ingresos, y gastos pequeños inesperados. Empieza con $1,000 si eso es lo realista ahora. Súbelo conforme mejore tu situación.'
+  },
+  {
+    tag: 'Tarjeta BBVA', color: 'coral',
+    title: 'Siempre paga más del mínimo',
+    preview: 'El pago mínimo está diseñado para mantenerte en deuda por años.',
+    body: 'Los bancos se benefician de los pagos mínimos. A 3.5% mensual, un saldo de $10,000 pagando solo mínimos tarda más de 8 años y cuesta casi $10,000 en intereses. Duplicar el pago mínimo corta el tiempo y los intereses a más de la mitad. Incluso $200 extra al mes hace una diferencia notable con el tiempo.'
+  },
+  {
+    tag: 'Cargos automáticos', color: 'sky',
+    title: 'Audita tus suscripciones cada 3 meses',
+    preview: 'La mayoría de las personas tiene 2–4 suscripciones que ha olvidado.',
+    body: 'Pon un recordatorio cada 3 meses para revisar tu historial BBVA en busca de cargos recurrentes. Cancela todo lo que no hayas usado en 30 días. Netflix, Spotify, Amazon Prime, apps, membresías de gimnasio, pruebas gratis que se volvieron de pago — se acumulan rápido. Incluso $400–600/mes recuperados son $4,800–7,200/año que pueden ir a deuda o ahorro.'
+  },
+  {
+    tag: 'Ahorro', color: 'sage',
+    title: 'Págate primero — antes que cualquier otra cosa',
+    preview: 'El ahorro sucede cuando mueves el dinero antes de gastarlo.',
+    body: 'Si esperas hasta el final del mes para ahorrar "lo que sobre", casi nunca sobra nada. En cambio, mueve una cantidad fija pequeña inmediatamente después de que llegue el ingreso — antes de cualquier gasto. Aunque sean $300. Apártalo en un lugar separado (cuenta Nu, CETES Directo) para que mentalmente esté fuera de alcance para el gasto cotidiano.'
+  },
+  {
+    tag: 'Presupuesto', color: 'lavender',
+    title: 'Conoce tu "piso fijo" cada mes',
+    preview: '¿Cuánto es lo mínimo que necesitas para sobrevivir este mes?',
+    body: 'Suma cada gasto verdaderamente no negociable: renta, servicios, teléfono, seguros, pagos mínimos de deuda, apoyos a familia. Ese total es tu piso fijo. Todo lo que ganes por encima del piso es donde tienes opciones. Conocer este número cambia cómo piensas sobre el ingreso — deja de sentirse abstracto y empieza a sentirse concreto.'
+  },
+  {
+    tag: 'Fondo de emergencia', color: 'peach',
+    title: 'Empieza con $5,000 MXN. No con $50,000.',
+    preview: 'Un fondo de emergencia pequeño rompe el ciclo de deuda más de lo que la gente cree.',
+    body: '$5,000 pesos cubre la mayoría de las emergencias cotidianas: una reparación del coche, una semana lenta de reventa, un gasto médico inesperado. Sin él, cada emergencia añade a la deuda. Con él, absorbes el golpe y sigues adelante sin retroceder. Una vez que llegas a $5,000, apunta a 1 mes de gastos. Luego 2. Constrúyelo lento y consistentemente — en Nu o CETES Directo mientras lo haces.'
+  },
+  {
+    tag: 'Mentalidad', color: 'coral',
+    title: 'Progreso, no perfección',
+    preview: 'Una semana mala no borra los hábitos que estás construyendo.',
+    body: 'El cambio financiero es lento. Habrá semanas donde gastes de más, pierdas una meta de ahorro, o tomes una decisión que lamentes. Eso no significa que el trabajo esté desperdiciado — significa que eres humano. Lo que importa es la tendencia en meses, no una semana en particular. Sigue volviendo. Sigue intentando. La dirección importa más que la velocidad.'
+  },
+  {
+    tag: 'Apoyo a familia', color: 'lavender',
+    title: 'Incluye los apoyos en tu presupuesto base',
+    preview: 'Si los mandas regularmente, son un gasto real — planéalos así.',
+    body: 'Los apoyos regulares a familia no son "gastos extras" — son compromisos financieros reales. Suma lo que mandaste los últimos 6 meses y saca el promedio. Ese número va en tu presupuesto como categoría propia, junto a la renta y el teléfono. Los meses que puedas mandar más, bien. Pero presupuestar el promedio es lo que evita que te descuadre el mes cuando llega.'
+  },
+  {
+    tag: 'Finanzas en pareja', color: 'sky',
+    title: 'Habla de dinero antes de que sea un problema',
+    preview: 'Las parejas que hablan abiertamente de dinero tienen mucho menos estrés financiero.',
+    body: 'No necesitas combinar finanzas ni conocer cada detalle de la situación de tu pareja. Pero tener un entendimiento básico compartido del panorama financiero del hogar — qué trae cada quien, cuáles son los gastos compartidos, quién paga qué — previene las fuentes más comunes de conflicto relacionado con dinero. Incluso una conversación de 15 minutos una vez al mes sobre finanzas compartidas construye confianza y previene sorpresas.'
+  },
+];
+
+// ===== BADGES =====
+const badges = [
+  { id: 'b1', emoji: '🌱', name: 'Primer Paso', condition: () => state.completedModules.size >= 1 },
+  { id: 'b2', emoji: '📚', name: 'Fundamentos', condition: () => ['l1m1','l1m2','l1m3'].every(id => state.completedModules.has(id)) },
+  { id: 'b3', emoji: '💳', name: 'Sin Deuda', condition: () => state.completedModules.has('l1m4') },
+  { id: 'b4', emoji: '🧮', name: 'Usuario de Herramientas', condition: () => ['l2m1','l2m2','l2m3'].some(id => state.completedModules.has(id)) },
+  { id: 'b5', emoji: '🛡️', name: 'Red de Seguridad', condition: () => state.completedModules.has('l3m1') },
+  { id: 'b6', emoji: '👨‍👩‍👦', name: 'Familia Planeada', condition: () => state.completedModules.has('l3m4') },
+  { id: 'b7', emoji: '🎯', name: 'Tomador de Decisiones', condition: () => state.completedModules.has('l4m1') },
+  { id: 'b8', emoji: '🎲', name: 'Pro en Escenarios', condition: () => state.completedModules.has('l4m2') },
+  { id: 'b9', emoji: '🪞', name: 'Autoconsciente', condition: () => state.completedModules.has('l5m1') },
+  { id: 'b10', emoji: '⭐', name: 'Estudiante Estrella', condition: () => state.xp >= 400 },
+  { id: 'b11', emoji: '🏠', name: 'Costo Real', condition: () => state.completedModules.has('l2m3') },
+  { id: 'b12', emoji: '📈', name: 'Inversionista', condition: () => state.completedModules.has('l4m3') },
+  { id: 'b13', emoji: '🏆', name: 'MoneyMind ES Pro', condition: () => state.completedModules.size >= modules.length },
+];
+
+// ===== QUIZ STATE =====
+let quizAnswered = false;
+
+// ===== FUNCTIONS =====
+function startApp() {
+  loadState();
+  if (!state.userName) {
+    // First time — show name prompt instead of going straight to app
+    showNamePrompt();
+    return;
+  }
+  launchApp();
+}
+
+function showNamePrompt() {
+  const splash = document.getElementById('splash');
+  splash.innerHTML = `
+    <div class="splash-logo">🧠</div>
+    <div class="splash-title">Bienvenido a MoneyMind</div>
+    <div class="splash-sub">Antes de empezar — ¿cómo te llamamos?</div>
+    <input id="name-input" class="name-input" type="text" placeholder="Tu nombre" maxlength="30"
+      autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+    <button class="splash-btn" onclick="saveName()" id="name-btn" style="opacity:0.4;pointer-events:none">Comenzar →</button>
+    <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:12px">Tu nombre se queda solo en tu dispositivo</div>
+  `;
+  // Enable button once name is entered
+  const input = document.getElementById('name-input');
+  input.addEventListener('input', () => {
+    const btn = document.getElementById('name-btn');
+    const hasName = input.value.trim().length > 0;
+    btn.style.opacity = hasName ? '1' : '0.4';
+    btn.style.pointerEvents = hasName ? 'auto' : 'none';
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && input.value.trim().length > 0) saveName();
+  });
+  // Auto-focus after a short delay (splash animation)
+  setTimeout(() => input.focus(), 400);
+}
+
+function saveName() {
+  const input = document.getElementById('name-input');
+  const name = input.value.trim();
+  if (!name) return;
+  state.userName = name;
+  saveState();
+  launchApp();
+}
+
+function launchApp() {
+  document.getElementById('splash').classList.add('hidden');
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+  document.getElementById('xp-display').textContent = state.xp;
+  renderHome();
+  renderTips();
+  updateProgress();
+}
+
+function isUnlocked(mod) {
+  if (!mod.unlockAfter) return true;
+  return state.completedModules.has(mod.unlockAfter);
+}
+
+function renderHome() {
+  const requiredEl = document.getElementById('required-modules');
+  const allEl = document.getElementById('all-modules');
+  requiredEl.innerHTML = '';
+  allEl.innerHTML = '';
+
+  // Update greeting with name
+  const nameEl = document.getElementById('greeting-name');
+  const msgEl = document.getElementById('greeting-msg');
+  if (nameEl) {
+    const allDone = state.completedModules.size === modules.length;
+    const justStarting = state.completedModules.size === 0;
+    nameEl.textContent = state.userName ? `¡Hola, ${state.userName}! 👋` : 'Bienvenido';
+    if (msgEl) {
+      if (allDone) msgEl.textContent = 'You\'ve completed every module. Incredible work!';
+      else if (justStarting) msgEl.textContent = 'Ready to start your financial journey?';
+      else msgEl.textContent = 'Ready to level up your money skills?';
+    }
+  }
+
+  const requiredMods = modules.filter(m => m.required);
+  requiredMods.forEach(mod => renderModuleCard(mod, requiredEl));
+
+  const nonRequired = modules.filter(m => !m.required);
+  nonRequired.forEach(mod => renderModuleCard(mod, allEl));
+}
+
+function renderModuleCard(mod, container) {
+  const done = state.completedModules.has(mod.id);
+  const unlocked = isUnlocked(mod);
+  const card = document.createElement('div');
+  card.className = `module-card ${done ? 'completed' : ''} ${!unlocked ? 'locked' : ''}`;
+
+  let badge = '';
+  let statusIcon = '';
+  if (done) { badge = '<span class="module-badge badge-done">✓ Done</span>'; statusIcon = '✅'; }
+  else if (!unlocked) { badge = '<span class="module-badge badge-locked">🔒 Locked</span>'; statusIcon = '🔒'; }
+  else if (mod.required) { badge = '<span class="module-badge badge-required">Required</span>'; statusIcon = '▶️'; }
+  else { badge = '<span class="module-badge badge-unlocked">Unlocked</span>'; statusIcon = '▶️'; }
+
+  // Compute layer-relative module position: "Module X of Y"
+  const layerMods = modules.filter(m => m.layer === mod.layer);
+  const modIndexInLayer = layerMods.findIndex(m => m.id === mod.id) + 1;
+  const modCountInLayer = layerMods.length;
+  const modLabel = `Module ${modIndexInLayer} of ${modCountInLayer}`;
+  const modLabelColor = unlocked ? '' : 'opacity:0.45;';
+
+  const layerColors = ['','var(--sage)','var(--sky)','var(--lavender)','var(--gold)','var(--coral)'];
+
+  card.innerHTML = `
+    <div class="module-icon ${mod.iconClass}">${mod.icon}</div>
+    <div class="module-info">
+      <div class="module-layer" style="color:${layerColors[mod.layer]}">
+        Layer ${mod.layer}: ${mod.layerName}
+        <span class="module-position" style="${modLabelColor}">· ${modLabel}</span>
+      </div>
+      <div class="module-title">${mod.title}</div>
+      <div class="module-desc">${mod.desc}</div>
+      <div class="module-meta">
+        <span class="module-time">⏱ ${mod.time}</span>
+        <span class="module-time">⭐ +${mod.xp} XP</span>
+        ${badge}
+      </div>
+    </div>
+    <div class="module-status">${statusIcon}</div>
+  `;
+
+  if (unlocked) {
+    card.onclick = () => openLesson(mod);
+  }
+  container.appendChild(card);
+}
+
+function openLesson(mod) {
+  state.currentModule = mod;
+  state.currentStep = 0;
+  quizAnswered = false;
+  showScreen('lesson');
+  renderLessonStep();
+}
+
+function renderLessonStep() {
+  const mod = state.currentModule;
+  const step = mod.steps[state.currentStep];
+  const isLast = state.currentStep === mod.steps.length - 1;
+  const contentFn = lessonContent[mod.id]?.[step];
+  
+  const progress = ((state.currentStep) / (mod.steps.length - 1)) * 100;
+  
+  let stepHTML = '';
+  if (step === 'complete') {
+    stepHTML = `
+      <div class="lesson-card" style="text-align:center;padding:40px 24px">
+        <div style="font-size:64px;margin-bottom:16px">🎉</div>
+        <div style="font-size:24px;font-weight:900;color:var(--text-dark);margin-bottom:8px">Module Complete!</div>
+        <div style="font-family:'Lora',serif;font-style:italic;color:var(--text-mid);margin-bottom:4px">${mod.title}</div>
+        <div style="font-size:28px;font-weight:900;color:var(--peach-dark);margin-top:12px">+${mod.xp} XP earned</div>
+      </div>
+    `;
+  } else if (contentFn) {
+    stepHTML = contentFn();
+  }
+
+  const btnText = step === 'complete' ? 'Volver al Inicio' : isLast ? 'Completar Módulo' : 'Continuar →';
+  const btnClass = step === 'complete' || isLast ? 'complete-btn' : '';
+
+  document.getElementById('lesson-content').innerHTML = `
+    <div class="lesson-header">
+      <button class="lesson-back" onclick="showScreen('home')">← Back to Modules</button>
+      <div class="lesson-layer-tag" style="background:${getLayerBg(mod.layer)};color:${getLayerColor(mod.layer)}">
+        Layer ${mod.layer}: ${mod.layerName}
+      </div>
+      <div class="lesson-title">${mod.title}</div>
+      <div class="lesson-subtitle">Step ${state.currentStep + 1} of ${mod.steps.length}</div>
+      <div class="lesson-progress-bar">
+        <div class="lesson-progress-fill" style="width:${progress}%"></div>
+      </div>
+    </div>
+    ${stepHTML}
+    <button class="continue-btn ${btnClass}" onclick="nextStep()" id="continue-btn">${btnText}</button>
+  `;
+  document.getElementById('lesson-footer').innerHTML = '';
+  window.scrollTo(0, 0);
+}
+
+function getLayerBg(l) {
+  const bgs = ['','#e8f5e9','#e3f2fd','#f3e5f5','#fffde7','#fce4ec'];
+  return bgs[l] || '#f0f0f0';
+}
+function getLayerColor(l) {
+  const cs = ['','var(--sage-dark)','var(--sky)','var(--lavender)','#b8960c','var(--coral)'];
+  return cs[l] || '#666';
+}
+
+function nextStep() {
+  const mod = state.currentModule;
+  const step = mod.steps[state.currentStep];
+
+  // Already on completion card — just go home
+  if (step === 'complete') {
+    showScreen('home');
+    return;
+  }
+
+  // Check if the next step is 'complete' — trigger module completion
+  const nextStepIndex = state.currentStep + 1;
+  if (nextStepIndex < mod.steps.length && mod.steps[nextStepIndex] === 'complete') {
+    completeModule();
+    return;
+  }
+
+  // Normal: advance to next step
+  if (state.currentStep < mod.steps.length - 1) {
+    state.currentStep++;
+    quizAnswered = false;
+    renderLessonStep();
+  } else {
+    completeModule();
+  }
+}
+
+function completeModule() {
+  const mod = state.currentModule;
+  if (!state.completedModules.has(mod.id)) {
+    state.completedModules.add(mod.id);
+    state.xp += mod.xp;
+    document.getElementById('xp-display').textContent = state.xp;
+    saveState();
+    showCompletionModal(mod);
+  } else {
+    showScreen('home');
+  }
+  updateProgress();
+  renderHome();
+}
+
+function showCompletionModal(mod) {
+  document.getElementById('modal-emoji').textContent = mod.icon;
+  document.getElementById('modal-title').textContent = 'Module Complete!';
+  document.getElementById('modal-sub').textContent = mod.title;
+  document.getElementById('modal-xp').textContent = `+${mod.xp} XP`;
+  document.getElementById('completion-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('completion-modal').classList.remove('show');
+  showScreen('home');
+}
+
+function answerQuiz(btn, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const allBtns = btn.parentElement.querySelectorAll('.quiz-option');
+  allBtns.forEach(b => b.style.pointerEvents = 'none');
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const feedback = document.getElementById('quiz-feedback');
+  if (feedback) {
+    feedback.classList.add('show', correct ? 'correct' : 'wrong');
+    if (!correct) {
+      // Highlight the correct answer
+      allBtns.forEach(b => { if (b.dataset.correct) b.classList.add('correct'); });
+      // Show per-question wrong-answer explanation
+      const card = btn.closest('.quiz-card');
+      const explanation = card ? card.dataset.wrong : null;
+      feedback.textContent = explanation || '❌ Not quite — review the lesson above and try to identify the correct answer.';
+    }
+  }
+}
+
+function answerScenario(btn, quality, id) {
+  const allBtns = btn.parentElement.querySelectorAll('.scenario-option');
+  allBtns.forEach(b => b.style.pointerEvents = 'none');
+  const classMap = { best: 'selected-best', ok: 'selected-ok', bad: 'selected-bad' };
+  btn.classList.add(classMap[quality]);
+  const fb = scenarioFeedback[id]?.[quality];
+  const result = document.getElementById(`${id}-result`);
+  if (result && fb) {
+    const bgMap = { sage: '#e8f5e9', gold: '#fffde7', coral: '#fce4ec' };
+    const colorMap = { sage: 'var(--sage-dark)', gold: '#856404', coral: '#c0392b' };
+    result.style.background = bgMap[fb.cls] || '#f0f0f0';
+    result.style.color = colorMap[fb.cls] || '#333';
+    result.innerHTML = `<strong>${fb.emoji}</strong> ${fb.text}`;
+    result.classList.add('show');
+  }
+}
+
+function answerCheckin(btn, answer, id) {
+  // Handle both .checkin-btn (l5m1) and .checkin-opt (l5m2) button classes
+  const btnClass = btn.classList.contains('checkin-opt') ? '.checkin-opt' : '.checkin-btn';
+  const siblings = btn.parentElement.querySelectorAll(btnClass);
+  siblings.forEach(b => { b.style.pointerEvents = 'none'; b.classList.remove('selected'); });
+  btn.classList.add('selected', answer);
+  const res = checkinResponses[id]?.[answer];
+  // Try both response div patterns: {id}-response (l5m1) and {id}-feedback (l5m2)
+  const el = document.getElementById(`${id}-response`) || document.getElementById(`${id}-feedback`);
+  if (el && res) {
+    el.style.background = res.bg;
+    el.style.color = res.color;
+    el.textContent = res.text;
+    el.classList.add('show');
+  }
+}
+
+function calcDebt() {
+  const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
+  const monthlyRatePct = parseFloat(document.getElementById('calc-apr').value) || 0;
+  const payment = parseFloat(document.getElementById('calc-payment').value) || 0;
+  if (balance <= 0 || monthlyRatePct <= 0 || payment <= 0) return;
+  
+  const monthlyRate = monthlyRatePct / 100;
+  let remaining = balance;
+  let months = 0;
+  let totalInterest = 0;
+  
+  while (remaining > 0 && months < 600) {
+    const interest = remaining * monthlyRate;
+    totalInterest += interest;
+    remaining = remaining + interest - payment;
+    months++;
+    if (remaining < 0) remaining = 0;
+  }
+  
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const result = document.getElementById('debt-result');
+  document.getElementById('debt-months').textContent = months >= 600 ? '¡Nunca! (aumenta tu pago)' : `${months} meses`;
+  document.getElementById('debt-note').textContent = months < 600
+    ? `Pagarás ${fmt(totalInterest)} en intereses. Total pagado: ${fmt(balance + totalInterest)}. Tiempo: ${Math.floor(months/12)} años ${months%12} meses.`
+    : 'Tu pago no cubre el interés mensual. Aumenta tu pago.';
+  result.classList.add('show');
+}
+
+function calcBuffer() {
+  const fixed = parseFloat(document.getElementById('calc-fixed').value) || 0;
+  const slow = parseFloat(document.getElementById('calc-slow').value) || 0;
+  const avg = parseFloat(document.getElementById('calc-avg').value) || 0;
+  if (fixed <= 0 || slow <= 0) return;
+  
+  const gap = fixed - slow;
+  const recommended = Math.max(fixed * 0.5, gap > 0 ? gap * 1.5 : fixed * 0.25);
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const result = document.getElementById('buffer-result');
+  document.getElementById('buffer-amount').textContent = fmt(recommended);
+  document.getElementById('buffer-note').textContent = gap > 0
+    ? `Tu ingreso en mes lento (${fmt(slow)}) no cubre gastos fijos (${fmt(fixed)}). Necesitas un colchón de al menos ${fmt(gap)} más margen de seguridad. Constrúyelo en las semanas buenas.`
+    : `Tu ingreso lento cubre gastos con ${fmt(slow - fixed)}/mes de sobrante. Mantén ${fmt(recommended)} como colchón para huecos de timing y costos inesperados.`;
+  result.classList.add('show');
+}
+
+function calcHousing() {
+  const g = id => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+  const renta = g('hc-renta'), luz = g('hc-luz'), internet = g('hc-internet');
+  const gas = g('hc-gas'), agua = g('hc-agua'), hogar = g('hc-hogar');
+  const total = renta + luz + internet + gas + agua + hogar;
+  const perPerson = total / 2;
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const totalEl = document.getElementById('hc-total');
+  const ppEl = document.getElementById('hc-per-person');
+  const noteEl = document.getElementById('hc-note');
+  if (totalEl) totalEl.textContent = fmt(total);
+  if (ppEl) ppEl.textContent = fmt(perPerson);
+  if (noteEl && total > 0) {
+    const extra = total - renta;
+    noteEl.textContent = `La renta (${fmt(renta)}) es solo el ${Math.round(renta/total*100)}% del costo real. Los gastos adicionales suman ${fmt(extra)}/mes.`;
+  }
+}
+
+function updateProgress() {
+  const total = modules.length;
+  const done = state.completedModules.size;
+  const pct = Math.round((done / total) * 100);
+  
+  document.getElementById('overall-progress').style.width = pct + '%';
+  document.getElementById('modules-done').textContent = `${done} modules done`;
+  document.getElementById('modules-total').textContent = `· ${total} total`;
+  document.getElementById('stat-xp').textContent = state.xp;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-streak').textContent = state.streak + '🔥';
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('xp-display').textContent = state.xp;
+
+  // Layer progress
+  for (let l = 1; l <= 5; l++) {
+    const layerMods = modules.filter(m => m.layer === l);
+    const layerDone = layerMods.filter(m => state.completedModules.has(m.id)).length;
+    const layerPct = layerMods.length > 0 ? Math.round((layerDone / layerMods.length) * 100) : 0;
+    const bar = document.getElementById(`l${l}-bar`);
+    const pctEl = document.getElementById(`l${l}-pct`);
+    if (bar) bar.style.width = layerPct + '%';
+    if (pctEl) pctEl.textContent = layerPct + '%';
+  }
+
+  // Badges
+  renderBadges();
+}
+
+function renderBadges() {
+  const grid = document.getElementById('badge-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  badges.forEach(b => {
+    const earned = b.condition();
+    const item = document.createElement('div');
+    item.className = `badge-item ${earned ? 'earned' : ''}`;
+    item.innerHTML = `
+      <div class="badge-emoji ${earned ? '' : 'badge-locked-overlay'}">${b.emoji}</div>
+      <div class="badge-name">${b.name}</div>
+    `;
+    grid.appendChild(item);
+  });
+}
+
+function renderTips() {
+  const list = document.getElementById('tips-list');
+  list.innerHTML = '';
+  tips.forEach((tip, i) => {
+    const card = document.createElement('div');
+    card.className = `tip-card ${tip.color}`;
+    card.innerHTML = `
+      <div class="tip-tag">${tip.tag}</div>
+      <div class="tip-title">${tip.title}</div>
+      <div class="tip-preview">${tip.preview}</div>
+      <div class="tip-body" id="tip-body-${i}">${tip.body}</div>
+    `;
+    card.onclick = () => {
+      const body = document.getElementById(`tip-body-${i}`);
+      body.classList.toggle('open');
+    };
+    list.appendChild(card);
+  });
+}
+
+function calcBudget() {
+  const g = id => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+  const nomina = g('bc-nomina'), reventa = g('bc-reventa');
+  const renta = g('bc-renta'), tel = g('bc-tel'), seguros = g('bc-seguros'), deuda = g('bc-deuda');
+  const comida = g('bc-comida'), gas = g('bc-gas'), salidas = g('bc-salidas');
+  const familia = g('bc-familia'), subs = g('bc-subs'), varios = g('bc-varios');
+  const ingresos = nomina + reventa;
+  const gastosFijos = renta + tel + seguros + deuda;
+  const gastosVar = comida + gas + salidas + familia + subs + varios;
+  const total = gastosFijos + gastosVar;
+  const diff = ingresos - total;
+  const result = document.getElementById('budget-result');
+  if (!result || ingresos === 0) return;
+  result.style.display = 'block';
+  const label = document.getElementById('budget-result-label');
+  const val = document.getElementById('budget-result-val');
+  const advice = document.getElementById('budget-result-advice');
+  const fmt = n => '$' + Math.abs(n).toLocaleString('es-MX');
+  if (diff > 0) {
+    result.style.background = '#e8f5e9'; result.style.border = '1px solid #a5d6a7';
+    label.style.color = '#2e7d32'; label.textContent = '✅ Superávit mensual';
+    val.style.color = '#2e7d32'; val.textContent = fmt(diff);
+    advice.style.color = '#388e3c'; advice.textContent = `Te sobran ${fmt(diff)}/mes. Sugerencia: 60% a pago extra de deuda, 40% a fondo de emergencia.`;
+  } else if (diff < 0) {
+    result.style.background = '#fce4ec'; result.style.border = '1px solid #f48fb1';
+    label.style.color = '#c62828'; label.textContent = '⚠️ Déficit mensual';
+    val.style.color = '#c62828'; val.textContent = '-' + fmt(diff);
+    advice.style.color = '#c62828'; advice.textContent = `Te faltan ${fmt(diff)}/mes. Revisa suscripciones, salidas y gastos varios — ahí está el espacio para recortar.`;
+  } else {
+    result.style.background = '#fff8e1'; result.style.border = '1px solid #ffe082';
+    label.style.color = '#f57f17'; label.textContent = '⚖️ Exacto — en cero';
+    val.style.color = '#f57f17'; val.textContent = '$0';
+    advice.style.color = '#f57f17'; advice.textContent = 'Estás en equilibrio, pero un mes lento te pondría en déficit. Intenta encontrar al menos $500/mes de margen.';
+  }
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`screen-${name}`)?.classList.add('active');
+  document.getElementById(`nav-${name}`)?.classList.add('active');
+  if (name === 'progress') updateProgress();
+  if (name === 'home') renderHome();
+  if (name !== 'lesson') window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
